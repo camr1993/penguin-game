@@ -4,9 +4,6 @@ var config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  render: {
-    pixelArt: true,
-  },
   physics: {
     default: 'arcade',
     arcade: {
@@ -28,9 +25,9 @@ function preload() {
   this.load.image('ground', 'assets/platform.png');
   this.load.image('star', 'assets/star.png');
   this.load.image('bomb', 'assets/bomb.png');
-  this.load.spritesheet('penguin', 'assets/penguin.png', {
-    frameWidth: 18,
-    frameHeight: 21,
+  this.load.spritesheet('dude', 'assets/dude.png', {
+    frameWidth: 32,
+    frameHeight: 48,
   });
 }
 
@@ -57,41 +54,29 @@ function create() {
   platforms.create(750, 200, 'ground');
 
   // player:
-  player = this.physics.add.sprite(100, 450, 'penguin');
-  player.setScale(2.0);
-  // player.setBounce(0.2);
+  player = this.physics.add.sprite(100, 450, 'dude');
+
+  player.setBounce(0.2);
   player.setCollideWorldBounds(true);
 
   this.anims.create({
     key: 'left',
-    frames: this.anims.generateFrameNumbers('penguin', { start: 4, end: 7 }),
+    frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
     frameRate: 10,
     repeat: -1,
   });
 
   this.anims.create({
-    key: 'stop',
-    frames: [{ key: 'penguin', frame: 0 }],
+    key: 'turn',
+    frames: [{ key: 'dude', frame: 1 }],
     frameRate: 20,
   });
 
   this.anims.create({
     key: 'right',
-    frames: this.anims.generateFrameNumbers('penguin', { start: 0, end: 3 }),
+    frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
     frameRate: 10,
     repeat: -1,
-  });
-
-  this.anims.create({
-    key: 'jumpRight',
-    frames: [{ key: 'penguin', frame: 9 }],
-    frameRate: 20,
-  });
-
-  this.anims.create({
-    key: 'jumpLeft',
-    frames: [{ key: 'penguin', frame: 8 }],
-    frameRate: 20,
   });
 
   cursors = this.input.keyboard.createCursorKeys();
@@ -126,32 +111,18 @@ function create() {
 }
 
 function update() {
-  // jumping from ground
-  if (cursors.up.isDown && player.body.touching.down) {
-    player.setVelocityY(-330);
-  }
-
   if (cursors.left.isDown) {
     player.setVelocityX(-160);
-    if (player.body.touching.down) {
-      player.anims.play('left', true);
-    } else {
-      player.anims.play('jumpLeft');
-    }
+    player.anims.play('left', true);
   } else if (cursors.right.isDown) {
     player.setVelocityX(160);
-    if (player.body.touching.down) {
-      player.anims.play('right', true);
-    } else {
-      player.anims.play('jumpRight');
-    }
+    player.anims.play('right', true);
   } else {
     player.setVelocityX(0);
-    if (player.body.touching.down) {
-      player.anims.play('stop');
-    } else {
-      player.anims.play('jumpRight');
-    }
+    player.anims.play('turn');
+  }
+  if (cursors.up.isDown && player.body.touching.down) {
+    player.setVelocityY(-330);
   }
 }
 
@@ -185,6 +156,6 @@ function collectStar(player, star) {
 function hitBomb(player, bomb) {
   this.physics.pause();
   player.setTint(0xff0000);
-  player.anims.play('stop');
+  player.anims.play('turn');
   gameOver = true;
 }
