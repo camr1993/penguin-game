@@ -1,0 +1,20 @@
+{
+  "name": "nameofmygame",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.22.0"
+  },
+  "devDependencies": {
+    "raw-loader": "^4.0.1",
+    "webpack": "^4.42.1",
+    "webpack-dev-server": "^3.10.3",
+    "webpack-cli": "^3.3.11"
+  }
+}
