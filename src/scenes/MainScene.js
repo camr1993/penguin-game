@@ -8,6 +8,9 @@ import Bullet from '../entities/Bullet';
 export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainScene');
+
+    this.pickupWeapon = this.pickupWeapon.bind(this);
+    this.fireWeapon = this.fireWeapon.bind(this);
   }
 
   preload() {
@@ -47,13 +50,17 @@ export default class MainScene extends Phaser.Scene {
     this.pistol = this.pistols.create(330, 300, 'pistol');
 
     // bullet(s):
-    this.bullets = this.physics.add.group({ classType: Bullet });
-    this.bullet = this.bullets.create(350, 300, 'bullet').setScale(0.9);
+    this.bullets = this.physics.add.group({
+      classType: Bullet,
+      runChildUpdate: true, // auto run update() on bullet!
+      allowGravity: false,
+    });
+    // this.bullet = this.bullets.create(350, 300, 'bullet').setScale(0.9);
 
     // collisions:
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.pistols, this.platforms);
-    this.physics.add.collider(this.bullet, this.platforms);
+    this.physics.add.collider(this.bullets, this.platforms);
 
     this.physics.add.overlap(
       this.player,
@@ -64,8 +71,9 @@ export default class MainScene extends Phaser.Scene {
     );
   }
 
-  update() {
+  update(time, delta) {
     this.player.update(this.cursors);
+    this.pistol.update(time, this.cursors, this.player, this.fireWeapon);
   }
 
   createPlayerAnims() {
@@ -107,7 +115,43 @@ export default class MainScene extends Phaser.Scene {
   pickupWeapon(player, weapon) {
     player.currentWeapon.name = `${weapon.texture.key}`;
     player.currentWeapon.holding = true;
-    console.log('player.currentWeapon', player.currentWeapon);
     weapon.disableBody(true, true);
+  }
+
+  fireWeapon() {
+    // if firing on ground
+    if (this.player.body.touching.down) {
+      const offsetX = 10;
+      const offsetY = 3;
+      const unitX =
+        this.player.x + (this.player.facingLeft ? -offsetX : offsetX);
+      const unitY = this.player.y + offsetY;
+
+      let bullet = new Bullet(
+        this,
+        unitX,
+        unitY,
+        'bullet',
+        this.player.facingLeft,
+        !this.player.body.touching.down
+      ).setScale(0.9);
+      this.bullets.add(bullet);
+    } else {
+      const offsetX = -10;
+      const offsetY = 30;
+      const unitX =
+        this.player.x + (this.player.facingLeft ? -offsetX : offsetX);
+      const unitY = this.player.y + offsetY;
+
+      let bullet = new Bullet(
+        this,
+        unitX,
+        unitY,
+        'bullet',
+        this.player.facingLeft,
+        !this.player.body.touching.down
+      ).setScale(0.9);
+      this.bullets.add(bullet);
+    }
   }
 }
