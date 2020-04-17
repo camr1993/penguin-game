@@ -119,39 +119,18 @@ export default class MainScene extends Phaser.Scene {
   }
 
   fireWeapon() {
-    // if firing on ground
-    if (this.player.body.touching.down) {
-      const offsetX = 10;
-      const offsetY = 3;
-      const unitX =
-        this.player.x + (this.player.facingLeft ? -offsetX : offsetX);
-      const unitY = this.player.y + offsetY;
+    const offsetX = 10;
+    const offsetY = 3;
+    const unitX = this.player.x + (this.player.facingLeft ? -offsetX : offsetX);
+    const unitY = this.player.y + offsetY;
 
-      let bullet = new Bullet(
-        this,
-        unitX,
-        unitY,
-        'bullet',
-        this.player.facingLeft,
-        !this.player.body.touching.down
-      ).setScale(0.9);
-      this.bullets.add(bullet);
-    } else {
-      const offsetX = -10;
-      const offsetY = 30;
-      const unitX =
-        this.player.x + (this.player.facingLeft ? -offsetX : offsetX);
-      const unitY = this.player.y + offsetY;
-
-      let bullet = new Bullet(
-        this,
-        unitX,
-        unitY,
-        'bullet',
-        this.player.facingLeft,
-        !this.player.body.touching.down
-      ).setScale(0.9);
-      this.bullets.add(bullet);
-    }
+    let bullet = new Bullet(
+      this,
+      unitX,
+      unitY,
+      'bullet',
+      this.player.facingLeft
+    ).setScale(0.9);
+    this.bullets.add(bullet);
   }
 }
