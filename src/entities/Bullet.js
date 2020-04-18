@@ -12,6 +12,15 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.facingLeft = facingLeft;
   }
 
+  reset(x, y, facingLeft) {
+    this.setActive(true);
+    this.setVisible(true);
+    this.lifespan = 900;
+    this.facingLeft = facingLeft;
+    this.setPosition(x, y);
+  }
+
+  // maybe can pass down a true/false that checks for collision?
   update(time, delta) {
     this.lifespan -= delta;
     const moveDistance = this.speed * delta;

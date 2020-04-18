@@ -177,7 +177,7 @@ function collectStar(player, star) {
 
 function hitBomb(player, bomb) {
   this.physics.pause();
-  player.setTint(0xff0000);
+  player.setTint(0xf7fbff);
   player.anims.play('stop');
   gameOver = true;
 }
