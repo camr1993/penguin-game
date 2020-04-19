@@ -10,7 +10,22 @@ const server = app.listen(3000, () => {
 
 const socketListener = createSocketListener(server);
 
+const randCoord = () => {
+  return Math.floor(Math.random() * 700) + 50;
+};
+
+let id = 0;
+const newId = () => {
+  id++;
+  return id;
+};
+
 const players = {};
+var pistol = {
+  x: randCoord(),
+  y: 50,
+  id: newId(),
+};
 
 // .on listens for an emit (action), .emit sends an action
 socketListener.on('connect', function (socket) {
@@ -21,7 +36,7 @@ socketListener.on('connect', function (socket) {
 
   // create player in players obj and send info back to client
   players[socket.id] = {
-    x: Math.floor(Math.random() * 700) + 50,
+    x: randCoord(),
     y: 50,
     playerId: socket.id,
     team: Math.floor(Math.random() * 2) === 0 ? 'red' : 'blue',
@@ -29,7 +44,8 @@ socketListener.on('connect', function (socket) {
 
   // send the players object to the new player
   socket.emit('currentPlayers', players);
-
+  // send the pistol object to the new player
+  socket.emit('pistolLocation', pistol);
   // update all other players of the new player
   socket.broadcast.emit('newPlayer', players[socket.id]);
 
@@ -47,6 +63,9 @@ socketListener.on('connect', function (socket) {
     players[socket.id].y = movementData.y;
     players[socket.id].facingLeft = movementData.facingLeft;
     socket.broadcast.emit('playerMoved', players[socket.id]);
+  });
+  socket.on('pistolPickedUp', (pistolId) => {
+    socket.broadcast.emit('pistolDestroy', pistolId);
   });
 });
 

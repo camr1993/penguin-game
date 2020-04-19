@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import Player from '../entities/Player';
 import TestDummy from '../entities/TestDummy';
-// import io from 'socket.io';
+import Pistol from '../entities/Pistol';
 
 export default class MainSceneTest extends Phaser.Scene {
   constructor() {
@@ -10,12 +10,14 @@ export default class MainSceneTest extends Phaser.Scene {
     this.gameOver = false;
     this.addPlayer = this.addPlayer.bind(this);
     this.addOtherPlayers = this.addOtherPlayers.bind(this);
+    this.pickupWeapon = this.pickupWeapon.bind(this);
   }
 
   preload() {
     this.load.image('sky', 'assets/sky.png');
     this.load.image('tree', 'assets/tree.png');
     this.load.image('platform', 'assets/platform.png');
+    this.load.image('pistol', 'assets/pistol.png');
     this.load.spritesheet('penguin', 'assets/penguin.png', {
       frameWidth: 64,
       frameHeight: 75,
@@ -29,6 +31,7 @@ export default class MainSceneTest extends Phaser.Scene {
       classType: TestDummy,
       runChildUpdate: true,
     });
+    this.pistols = this.physics.add.group({ classType: Pistol });
     // background:
     this.add.image(400, 300, 'sky');
     // tree
@@ -53,8 +56,6 @@ export default class MainSceneTest extends Phaser.Scene {
 
     // Make the player from the info we get from the server:
     this.clientSocket.on('currentPlayers', (players) => {
-      console.log('playersObj', players);
-      console.log('clientSocket ID', self.clientSocket.id);
       Object.keys(players).forEach((id) => {
         if (players[id].playerId === this.clientSocket.id) {
           this.addPlayer(players[id]);
@@ -74,14 +75,21 @@ export default class MainSceneTest extends Phaser.Scene {
       });
     });
     this.clientSocket.on('playerMoved', (playerInfo) => {
-      console.log('SOMEONE MOVED');
-      console.log('PLAYER INFO FROM SERVER: ', playerInfo);
       this.testDummies.getChildren().forEach((otherPlayer) => {
-        console.log('EACH OTHER PLAYER', otherPlayer);
         if (playerInfo.playerId === otherPlayer.playerId) {
-          console.log('got here!!!');
           otherPlayer.facingLeft = playerInfo.facingLeft;
           otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+        }
+      });
+    });
+    this.clientSocket.on('pistolLocation', (pistolInfo) => {
+      const pistol = this.pistols.create(pistolInfo.x, pistolInfo.y, 'pistol');
+      pistol.id = pistolInfo.id;
+    });
+    this.clientSocket.on('pistolDestroy', (pistolId) => {
+      this.pistols.getChildren().forEach((pistol) => {
+        if (pistol.id === pistolId) {
+          pistol.destroy();
         }
       });
     });
@@ -124,7 +132,7 @@ export default class MainSceneTest extends Phaser.Scene {
 
   collisions() {
     this.physics.add.collider(this.players, this.platforms);
-    // this.physics.add.collider(this.pistols, this.platforms);
+    this.physics.add.collider(this.pistols, this.platforms);
     // this.physics.add.collider(this.player, this.trees);
     // this.physics.add.collider(this.pistols, this.trees);
 
@@ -135,13 +143,13 @@ export default class MainSceneTest extends Phaser.Scene {
 
     // this.physics.add.overlap(this.platforms, this.bullets, this.hit);
     // this.physics.add.overlap(this.trees, this.bullets, this.hit);
-    // this.physics.add.overlap(
-    //   this.player,
-    //   this.pistols,
-    //   this.pickupWeapon,
-    //   null,
-    //   this
-    // );
+    this.physics.add.overlap(
+      this.players,
+      this.pistols,
+      this.pickupWeapon,
+      null,
+      this
+    );
   }
 
   createPlayerAnims() {
@@ -187,20 +195,20 @@ export default class MainSceneTest extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
   }
 
-  addTestDummy(playerInfo) {
-    this.testDummy = this.testDummies.create(
-      playerInfo.x,
-      playerInfo.y,
-      'penguin'
-    );
-    if (playerInfo.team === 'blue') {
-      this.testDummy.setTint(0x0000ff);
-    } else {
-      this.testDummy.setTint(0xff0000);
-    }
-    this.testDummy.setScale(0.75);
-    this.testDummy.setCollideWorldBounds(true);
-  }
+  // addTestDummy(playerInfo) {
+  //   this.testDummy = this.testDummies.create(
+  //     playerInfo.x,
+  //     playerInfo.y,
+  //     'penguin'
+  //   );
+  //   if (playerInfo.team === 'blue') {
+  //     this.testDummy.setTint(0x0000ff);
+  //   } else {
+  //     this.testDummy.setTint(0xff0000);
+  //   }
+  //   this.testDummy.setScale(0.75);
+  //   this.testDummy.setCollideWorldBounds(true);
+  // }
 
   addOtherPlayers(playerInfo) {
     const otherPlayer = this.testDummies.create(
@@ -216,5 +224,14 @@ export default class MainSceneTest extends Phaser.Scene {
     otherPlayer.setScale(0.75);
     otherPlayer.setCollideWorldBounds(true);
     otherPlayer.playerId = playerInfo.playerId;
+  }
+
+  pickupWeapon(player, weapon) {
+    console.log('WEAPON PICKD UP:', weapon);
+    player.currentWeapon.name = `${weapon.texture.key}`;
+    player.currentWeapon.holding = true;
+    weapon.disableBody(true, true);
+
+    this.clientSocket.emit('pistolPickedUp', weapon.id);
   }
 }
