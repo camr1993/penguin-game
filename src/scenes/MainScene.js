@@ -4,7 +4,7 @@ import TestDummy from '../entities/TestDummy';
 import Pistol from '../entities/Pistol';
 import Bullet from '../entities/Bullet';
 
-// I think the purpose of having a separate entity is to set things on it's constructor and alter things that will specifically affect that entity
+const players = {};
 
 export default class MainScene extends Phaser.Scene {
   constructor() {
@@ -34,6 +34,8 @@ export default class MainScene extends Phaser.Scene {
     });
   }
   create() {
+    this.socket = io();
+
     // background:
     this.add.image(400, 300, 'sky');
 
