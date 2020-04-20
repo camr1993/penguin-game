@@ -79,6 +79,8 @@ export default class MainSceneTest extends Phaser.Scene {
         if (playerInfo.playerId === otherPlayer.playerId) {
           otherPlayer.facingLeft = playerInfo.facingLeft;
           otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+          otherPlayer.currentWeapon = playerInfo.currentWeapon;
+          otherPlayer.run = playerInfo.run;
         }
       });
     });
@@ -89,7 +91,7 @@ export default class MainSceneTest extends Phaser.Scene {
     this.clientSocket.on('pistolDestroy', (pistolId) => {
       this.pistols.getChildren().forEach((pistol) => {
         if (pistol.id === pistolId) {
-          pistol.destroy();
+          pistol.disableBody(true, true);
         }
       });
     });
@@ -108,16 +110,20 @@ export default class MainSceneTest extends Phaser.Scene {
       let x = this.player.x;
       let y = this.player.y;
       let facingLeft = this.player.facingLeft;
+      let holdingWeapon = this.player.currentWeapon.holding;
       if (
         this.player.oldPosition &&
         (x !== this.player.oldPosition.x ||
           y !== this.player.oldPosition.y ||
-          facingLeft !== this.player.oldPosition.facingLeft)
+          facingLeft !== this.player.oldPosition.facingLeft ||
+          holdingWeapon !== this.player.oldPosition.holdingWeapon)
       ) {
         this.clientSocket.emit('playerMovement', {
           x: this.player.x,
           y: this.player.y,
           facingLeft: this.player.facingLeft,
+          currentWeapon: this.player.currentWeapon,
+          run: x !== this.player.oldPosition.x,
         });
       }
 
@@ -126,6 +132,7 @@ export default class MainSceneTest extends Phaser.Scene {
         x: this.player.x,
         y: this.player.y,
         facingLeft: this.player.facingLeft,
+        holdingWeapon: this.player.currentWeapon.holding,
       };
     }
   }
@@ -195,21 +202,6 @@ export default class MainSceneTest extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
   }
 
-  // addTestDummy(playerInfo) {
-  //   this.testDummy = this.testDummies.create(
-  //     playerInfo.x,
-  //     playerInfo.y,
-  //     'penguin'
-  //   );
-  //   if (playerInfo.team === 'blue') {
-  //     this.testDummy.setTint(0x0000ff);
-  //   } else {
-  //     this.testDummy.setTint(0xff0000);
-  //   }
-  //   this.testDummy.setScale(0.75);
-  //   this.testDummy.setCollideWorldBounds(true);
-  // }
-
   addOtherPlayers(playerInfo) {
     const otherPlayer = this.testDummies.create(
       playerInfo.x,
@@ -227,7 +219,6 @@ export default class MainSceneTest extends Phaser.Scene {
   }
 
   pickupWeapon(player, weapon) {
-    console.log('WEAPON PICKD UP:', weapon);
     player.currentWeapon.name = `${weapon.texture.key}`;
     player.currentWeapon.holding = true;
     weapon.disableBody(true, true);

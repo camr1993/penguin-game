@@ -62,6 +62,8 @@ socketListener.on('connect', function (socket) {
     players[socket.id].x = movementData.x;
     players[socket.id].y = movementData.y;
     players[socket.id].facingLeft = movementData.facingLeft;
+    players[socket.id].currentWeapon = movementData.currentWeapon;
+    players[socket.id].run = movementData.run;
     socket.broadcast.emit('playerMoved', players[socket.id]);
   });
   socket.on('pistolPickedUp', (pistolId) => {
