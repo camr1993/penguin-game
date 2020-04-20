@@ -1,7 +1,7 @@
 /* eslint-disable no-lonely-if */
 import Phaser from 'phaser';
 
-export default class TestDummy extends Phaser.Physics.Arcade.Sprite {
+export default class OtherPlayer extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, spriteKey) {
     super(scene, x, y, spriteKey);
     this.scene.add.existing(this);
@@ -10,7 +10,7 @@ export default class TestDummy extends Phaser.Physics.Arcade.Sprite {
     this.facingLeft = false;
     this.updatedLeft = false;
 
-    this.name = 'TestDummy';
+    this.name = 'OtherPlayer';
     this.health = 100;
     this.currentWeapon = {
       holding: false,
@@ -20,6 +20,7 @@ export default class TestDummy extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
+    // console.log(this.run);
     if (this.facingLeft !== this.updatedLeft) {
       this.flipX = !this.flipX;
       this.updatedLeft = this.facingLeft;
@@ -40,7 +41,11 @@ export default class TestDummy extends Phaser.Physics.Arcade.Sprite {
   }
   noMovements() {
     if (!this.run && this.body.touching.down) {
-      this.anims.play('run');
+      if (!this.currentWeapon.holding) {
+        this.anims.play('stop', true);
+      } else {
+        this.anims.play(`stop${this.currentWeapon.name}`, true);
+      }
     }
   }
   runMovements() {
@@ -51,5 +56,6 @@ export default class TestDummy extends Phaser.Physics.Arcade.Sprite {
         this.anims.play(`run${this.currentWeapon.name}`, true);
       }
     }
+    this.run = false;
   }
 }

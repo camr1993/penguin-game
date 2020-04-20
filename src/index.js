@@ -1,9 +1,6 @@
 /* eslint-disable no-lonely-if */
 import Phaser from 'phaser';
 import MainScene from './scenes/MainScene';
-import MainSceneTest from './scenes/MainSceneTest';
-// import createClientSocket from 'socket.io-client';
-// const clientSocket = createClientSocket(window.location.origin);
 
 var config = {
   type: Phaser.AUTO,
@@ -21,7 +18,7 @@ var config = {
     },
   },
   // this is saying there is one scene, and you are importing preload/create/update for that one scene
-  scene: [MainSceneTest],
+  scene: [MainScene],
 };
 
 const game = new Phaser.Game(config);
