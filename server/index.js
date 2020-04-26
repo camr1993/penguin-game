@@ -76,3 +76,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
+
+socketListener.on('SIGINT', function () {
+  console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
+  // some other closing procedures go here
+  socketListener.exit(1);
+});
