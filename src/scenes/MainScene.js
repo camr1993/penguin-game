@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Player from '../entities/Player';
 import OtherPlayer from '../entities/OtherPlayer';
 import Pistol from '../entities/Pistol';
+import Bullet from '../entities/Bullet';
 
 export default class MainScene extends Phaser.Scene {
   constructor() {
@@ -14,6 +15,7 @@ export default class MainScene extends Phaser.Scene {
     this.addPlayer = this.addPlayer.bind(this);
     this.addOtherPlayers = this.addOtherPlayers.bind(this);
     this.pickupWeapon = this.pickupWeapon.bind(this);
+    this.fireWeapon = this.fireWeapon.bind(this);
   }
 
   preload() {
@@ -21,12 +23,14 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('tree', 'assets/tree.png');
     this.load.image('platform', 'assets/platform.png');
     this.load.image('pistol', 'assets/pistol.png');
+    this.load.image('bullet', 'assets/bullet.png');
     this.load.spritesheet('penguin', 'assets/penguin.png', {
       frameWidth: 64,
       frameHeight: 75,
     });
   }
   create() {
+    // groups:
     this.players = this.add.group({
       classType: Player,
     });
@@ -35,6 +39,12 @@ export default class MainScene extends Phaser.Scene {
       runChildUpdate: true,
     });
     this.pistols = this.physics.add.group({ classType: Pistol });
+    // bullet(s):
+    this.bullets = this.physics.add.group({
+      classType: Bullet,
+      runChildUpdate: true, // auto run update() on bullet children!
+      allowGravity: false,
+    });
 
     // background:
     this.add.image(400, 300, 'sky');
@@ -96,6 +106,10 @@ export default class MainScene extends Phaser.Scene {
         facingLeft: this.player.facingLeft,
         holdingWeapon: this.player.currentWeapon.holding,
       };
+    }
+
+    if (this.pistol) {
+      this.pistol.update(time, this.cursors, this.player, this.fireWeapon);
     }
   }
 
@@ -238,5 +252,27 @@ export default class MainScene extends Phaser.Scene {
     weapon.disableBody(true, true);
 
     this.clientSocket.emit('pistolPickedUp', weapon.id);
+  }
+
+  fireWeapon() {
+    const offsetX = 10;
+    const offsetY = 3;
+    const unitX = this.player.x + (this.player.facingLeft ? -offsetX : offsetX);
+    const unitY = this.player.y + offsetY;
+
+    // Check if there are any dead bullets, if not then create a new one
+    let bullet = this.bullets.getFirstDead();
+    if (!bullet) {
+      bullet = new Bullet(
+        this,
+        unitX,
+        unitY,
+        'bullet',
+        this.player.facingLeft
+      ).setScale(0.9);
+      this.bullets.add(bullet);
+    }
+
+    bullet.reset(unitX, unitY, this.player.facingLeft);
   }
 }
