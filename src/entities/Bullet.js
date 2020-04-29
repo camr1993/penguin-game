@@ -1,9 +1,18 @@
+/* eslint-disable max-params */
 /* eslint-disable no-lonely-if */
 import Phaser from 'phaser';
 
 // sprite is a built-in game object of phaser that can display both static and animated images
 export default class Bullet extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y, spriteKey, facingLeft, emitted) {
+  constructor(
+    scene,
+    x,
+    y,
+    spriteKey,
+    facingLeft,
+    emitted,
+    enemyBullet = false
+  ) {
     super(scene, x, y, spriteKey);
     this.scene.add.existing(this);
     this.scene.physics.world.enable(this);
@@ -11,6 +20,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.speed = Phaser.Math.GetSpeed(800, 1); // distance in px, time in ms
     this.facingLeft = facingLeft;
     this.emitted = emitted;
+    this.enemyBullet = enemyBullet;
   }
 
   reset(x, y, facingLeft) {

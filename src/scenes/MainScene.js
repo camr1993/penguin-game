@@ -12,6 +12,7 @@ export default class MainScene extends Phaser.Scene {
     this.setupSockets = this.setupSockets.bind(this);
     this.movementSockets = this.movementSockets.bind(this);
     this.emitPlayerMovement = this.emitPlayerMovement.bind(this);
+    this.emitBullets = this.emitBullets.bind(this);
     this.pistolSockets = this.pistolSockets.bind(this);
     this.bulletSockets = this.bulletSockets.bind(this);
     this.addPlayer = this.addPlayer.bind(this);
@@ -90,17 +91,7 @@ export default class MainScene extends Phaser.Scene {
       });
     }
     if (this.bullets.getChildren().length) {
-      this.bullets.getChildren().forEach((bullet) => {
-        if (bullet.emitted === false) {
-          this.clientSocket.emit('bulletFired', {
-            x: bullet.x,
-            y: bullet.y,
-            facingLeft: bullet.facingLeft,
-          });
-          console.log('emitted!');
-          bullet.emitted = true;
-        }
-      });
+      this.emitBullets();
     }
   }
 
@@ -113,9 +104,9 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.collider(this.otherPlayers, this.platforms);
     // this.physics.add.collider(this.testDummy, this.trees);
     // this.physics.add.collider(this.testDummy, this.player);
-    // this.physics.add.overlap(this.testDummy, this.bullets, this.hit);
+    this.physics.add.overlap(this.otherPlayers, this.bullets, this.hit);
 
-    // this.physics.add.overlap(this.platforms, this.bullets, this.hit);
+    this.physics.add.overlap(this.platforms, this.bullets, this.hit);
     // this.physics.add.overlap(this.trees, this.bullets, this.hit);
     this.physics.add.overlap(
       this.players,
@@ -262,10 +253,21 @@ export default class MainScene extends Phaser.Scene {
       holdingWeapon: this.player.currentWeapon.holding,
     };
   }
+  emitBullets() {
+    this.bullets.getChildren().forEach((bullet) => {
+      if (bullet.emitted === false) {
+        this.clientSocket.emit('bulletFired', {
+          x: bullet.x,
+          y: bullet.y,
+          facingLeft: bullet.facingLeft,
+        });
+        bullet.emitted = true;
+      }
+    });
+  }
 
   addPlayer(playerInfo) {
     this.player = this.players.create(playerInfo.x, playerInfo.y, 'penguin');
-    // this.player = new Player(this, playerInfo.x, playerInfo.y, 'penguin');
     this.player.setScale(0.75);
     this.player.setCollideWorldBounds(true);
   }
@@ -314,5 +316,25 @@ export default class MainScene extends Phaser.Scene {
       this.bullets.add(bullet);
     }
     bullet.reset(unitX, unitY, this.player.facingLeft);
+  }
+
+  hit(target, bullet) {
+    // if (bullet.active && target.health) {
+    //   target.health -= 10;
+    //   if (target.name === 'TestDummy') {
+    //     this.player2Health.displayWidth -= 13.8;
+    //     this.player2Health.x -= 6.9;
+    //   }
+    //   if (target.health <= 0) {
+    //     this.physics.pause();
+    //     target.clearTint();
+    //     target.setTint(0xff0000);
+    //     this.gameOver = true;
+    //   }
+    // }
+    if (bullet.enemyBullet) {
+      bullet.setActive(false);
+      bullet.setVisible(false);
+    }
   }
 }
