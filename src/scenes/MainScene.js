@@ -8,12 +8,12 @@ export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainSceneTest');
 
-    this.currentPistols = [];
-
     this.gameOver = false;
     this.setupSockets = this.setupSockets.bind(this);
     this.movementSockets = this.movementSockets.bind(this);
+    this.emitPlayerMovement = this.emitPlayerMovement.bind(this);
     this.pistolSockets = this.pistolSockets.bind(this);
+    this.bulletSockets = this.bulletSockets.bind(this);
     this.addPlayer = this.addPlayer.bind(this);
     this.addOtherPlayers = this.addOtherPlayers.bind(this);
     this.pickupWeapon = this.pickupWeapon.bind(this);
@@ -67,6 +67,7 @@ export default class MainScene extends Phaser.Scene {
     this.setupSockets();
     this.movementSockets();
     this.pistolSockets();
+    this.bulletSockets();
 
     // player things:
     this.createPlayerAnims();
@@ -79,40 +80,26 @@ export default class MainScene extends Phaser.Scene {
   update(time, delta) {
     if (this.player) {
       this.player.update(this.cursors);
-
-      // emit player movement
-      let x = this.player.x;
-      let y = this.player.y;
-      let facingLeft = this.player.facingLeft;
-      let holdingWeapon = this.player.currentWeapon.holding;
-      if (
-        this.player.oldPosition &&
-        (x !== this.player.oldPosition.x ||
-          y !== this.player.oldPosition.y ||
-          facingLeft !== this.player.oldPosition.facingLeft ||
-          holdingWeapon !== this.player.oldPosition.holdingWeapon)
-      ) {
-        this.clientSocket.emit('playerMovement', {
-          x: this.player.x,
-          y: this.player.y,
-          facingLeft: this.player.facingLeft,
-          currentWeapon: this.player.currentWeapon,
-          run: this.player.x !== this.player.oldPosition.x,
-        });
-      }
-
-      // save old position data
-      this.player.oldPosition = {
-        x: this.player.x,
-        y: this.player.y,
-        facingLeft: this.player.facingLeft,
-        holdingWeapon: this.player.currentWeapon.holding,
-      };
+      this.emitPlayerMovement();
     }
 
-    if (this.currentPistols.length) {
-      this.currentPistols.forEach((pistol) => {
+    // create bullets and emit bullet movement
+    if (this.pistols.getChildren().length) {
+      this.pistols.getChildren().forEach((pistol) => {
         pistol.update(time, this.cursors, this.player, this.fireWeapon);
+      });
+    }
+    if (this.bullets.getChildren().length) {
+      this.bullets.getChildren().forEach((bullet) => {
+        if (bullet.emitted === false) {
+          this.clientSocket.emit('bulletFired', {
+            x: bullet.x,
+            y: bullet.y,
+            facingLeft: bullet.facingLeft,
+          });
+          console.log('emitted!');
+          bullet.emitted = true;
+        }
       });
     }
   }
@@ -217,8 +204,6 @@ export default class MainScene extends Phaser.Scene {
     this.clientSocket.on('pistolLocation', (pistolInfo) => {
       const pistol = this.pistols.create(pistolInfo.x, pistolInfo.y, 'pistol');
       pistol.id = pistolInfo.id;
-      this.currentPistols.push(pistol);
-      console.log(pistol);
     });
     this.clientSocket.on('pistolDestroy', (pistolId) => {
       this.pistols.getChildren().forEach((pistol) => {
@@ -227,6 +212,55 @@ export default class MainScene extends Phaser.Scene {
         }
       });
     });
+  }
+  bulletSockets() {
+    this.clientSocket.on('incomingBullet', (bulletData) => {
+      console.log('incoming');
+      let bullet = this.bullets.getFirstDead();
+      if (!bullet) {
+        bullet = new Bullet(
+          this,
+          bulletData.x,
+          bulletData.y,
+          'bullet',
+          bulletData.facingLeft,
+          true
+        ).setScale(0.9);
+        this.bullets.add(bullet);
+      }
+
+      bullet.resetEmitted(bulletData.x, bulletData.y, bulletData.facingLeft);
+    });
+  }
+
+  emitPlayerMovement() {
+    let x = this.player.x;
+    let y = this.player.y;
+    let facingLeft = this.player.facingLeft;
+    let holdingWeapon = this.player.currentWeapon.holding;
+    if (
+      this.player.oldPosition &&
+      (x !== this.player.oldPosition.x ||
+        y !== this.player.oldPosition.y ||
+        facingLeft !== this.player.oldPosition.facingLeft ||
+        holdingWeapon !== this.player.oldPosition.holdingWeapon)
+    ) {
+      this.clientSocket.emit('playerMovement', {
+        x: this.player.x,
+        y: this.player.y,
+        facingLeft: this.player.facingLeft,
+        currentWeapon: this.player.currentWeapon,
+        run: this.player.x !== this.player.oldPosition.x,
+      });
+    }
+
+    // save old position data
+    this.player.oldPosition = {
+      x: this.player.x,
+      y: this.player.y,
+      facingLeft: this.player.facingLeft,
+      holdingWeapon: this.player.currentWeapon.holding,
+    };
   }
 
   addPlayer(playerInfo) {
@@ -274,11 +308,11 @@ export default class MainScene extends Phaser.Scene {
         unitX,
         unitY,
         'bullet',
-        this.player.facingLeft
+        this.player.facingLeft,
+        false
       ).setScale(0.9);
       this.bullets.add(bullet);
     }
-
     bullet.reset(unitX, unitY, this.player.facingLeft);
   }
 }

@@ -69,6 +69,9 @@ socketListener.on('connect', function (socket) {
   socket.on('pistolPickedUp', (pistolId) => {
     socket.broadcast.emit('pistolDestroy', pistolId);
   });
+  socket.on('bulletFired', (bulletData) => {
+    socket.broadcast.emit('incomingBullet', bulletData);
+  });
 });
 
 app.use(express.static(path.join(__dirname, '../public')));

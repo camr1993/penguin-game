@@ -3,13 +3,14 @@ import Phaser from 'phaser';
 
 // sprite is a built-in game object of phaser that can display both static and animated images
 export default class Bullet extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y, spriteKey, facingLeft) {
+  constructor(scene, x, y, spriteKey, facingLeft, emitted) {
     super(scene, x, y, spriteKey);
     this.scene.add.existing(this);
     this.scene.physics.world.enable(this);
 
-    this.speed = Phaser.Math.GetSpeed(700, 1); // distance in px, time in ms
+    this.speed = Phaser.Math.GetSpeed(800, 1); // distance in px, time in ms
     this.facingLeft = facingLeft;
+    this.emitted = emitted;
   }
 
   reset(x, y, facingLeft) {
@@ -18,6 +19,15 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.lifespan = 900;
     this.facingLeft = facingLeft;
     this.setPosition(x, y);
+    this.emitted = false;
+  }
+  resetEmitted(x, y, facingLeft) {
+    this.setActive(true);
+    this.setVisible(true);
+    this.lifespan = 900;
+    this.facingLeft = facingLeft;
+    this.setPosition(x, y);
+    this.emitted = true;
   }
 
   // maybe can pass down a true/false that checks for collision?
