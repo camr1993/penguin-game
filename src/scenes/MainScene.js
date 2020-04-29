@@ -8,6 +8,8 @@ export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainSceneTest');
 
+    this.currentPistols = [];
+
     this.gameOver = false;
     this.setupSockets = this.setupSockets.bind(this);
     this.movementSockets = this.movementSockets.bind(this);
@@ -108,8 +110,10 @@ export default class MainScene extends Phaser.Scene {
       };
     }
 
-    if (this.pistol) {
-      this.pistol.update(time, this.cursors, this.player, this.fireWeapon);
+    if (this.currentPistols.length) {
+      this.currentPistols.forEach((pistol) => {
+        pistol.update(time, this.cursors, this.player, this.fireWeapon);
+      });
     }
   }
 
@@ -213,6 +217,8 @@ export default class MainScene extends Phaser.Scene {
     this.clientSocket.on('pistolLocation', (pistolInfo) => {
       const pistol = this.pistols.create(pistolInfo.x, pistolInfo.y, 'pistol');
       pistol.id = pistolInfo.id;
+      this.currentPistols.push(pistol);
+      console.log(pistol);
     });
     this.clientSocket.on('pistolDestroy', (pistolId) => {
       this.pistols.getChildren().forEach((pistol) => {
