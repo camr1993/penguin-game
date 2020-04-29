@@ -105,6 +105,7 @@ export default class MainScene extends Phaser.Scene {
     // this.physics.add.collider(this.testDummy, this.trees);
     // this.physics.add.collider(this.testDummy, this.player);
     this.physics.add.overlap(this.otherPlayers, this.bullets, this.hit);
+    this.physics.add.overlap(this.players, this.bullets, this.hit);
 
     this.physics.add.overlap(this.platforms, this.bullets, this.hit);
     // this.physics.add.overlap(this.trees, this.bullets, this.hit);
@@ -206,7 +207,7 @@ export default class MainScene extends Phaser.Scene {
   }
   bulletSockets() {
     this.clientSocket.on('incomingBullet', (bulletData) => {
-      console.log('incoming');
+      // incoming bullet
       let bullet = this.bullets.getFirstDead();
       if (!bullet) {
         bullet = new Bullet(
@@ -215,6 +216,7 @@ export default class MainScene extends Phaser.Scene {
           bulletData.y,
           'bullet',
           bulletData.facingLeft,
+          true,
           true
         ).setScale(0.9);
         this.bullets.add(bullet);
@@ -332,7 +334,19 @@ export default class MainScene extends Phaser.Scene {
     //     this.gameOver = true;
     //   }
     // }
-    if (bullet.enemyBullet) {
+    if (target.body.immovable) {
+      bullet.setActive(false);
+      bullet.setVisible(false);
+    }
+    // from Player perspective: if bullet is friendly and its hits an enemy, it should disappear
+    // but if the bullet is an enemy bullet and fired from the other player, it shouldn't collide with other player
+    if (!bullet.enemyBullet && target.name === 'OtherPlayer') {
+      bullet.setActive(false);
+      bullet.setVisible(false);
+    }
+
+    // if it is an enemy bullet and it hits the player, then bullet disappears
+    if (bullet.enemyBullet && target.name === 'Player') {
       bullet.setActive(false);
       bullet.setVisible(false);
     }
