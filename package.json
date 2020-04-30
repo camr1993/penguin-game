@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "deploy": "script/deploy",
-    "start": "node server",
+    "start": "node server/index.js",
     "start-dev": "npm run build-watch & npm run start-server",
     "build-watch": "webpack -w",
     "start-server": "nodemon server/index.js --ignore public"
