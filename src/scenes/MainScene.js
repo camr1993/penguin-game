@@ -25,6 +25,7 @@ export default class MainScene extends Phaser.Scene {
     this.collisionEnemyToEnemy = this.collisionEnemyToEnemy.bind(this);
     this.collisionPlayerToEnemy = this.collisionPlayerToEnemy.bind(this);
     this.emitGameOver = this.emitGameOver.bind(this);
+    this.healthbar = this.healthbar.bind(this);
   }
 
   preload() {
@@ -33,6 +34,8 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('platform', 'assets/platform.png');
     this.load.image('pistol', 'assets/pistol.png');
     this.load.image('bullet', 'assets/bullet.png');
+    this.load.image('healthbar-border', 'assets/healthbar-border.png');
+    this.load.image('healthbar', 'assets/healthbar.png');
     this.load.spritesheet('penguin', 'assets/penguin.png', {
       frameWidth: 64,
       frameHeight: 75,
@@ -60,12 +63,16 @@ export default class MainScene extends Phaser.Scene {
     // tree
     // this.trees = this.physics.add.staticGroup();
     // this.trees.create(200, 493, 'tree').setScale(1.5);
+
     // platforms:
     this.platforms = this.physics.add.staticGroup();
     this.platforms.create(400, 568, 'platform').setScale(2).refreshBody();
     this.platforms.create(600, 400, 'platform');
     this.platforms.create(50, 250, 'platform');
     this.platforms.create(750, 200, 'platform');
+
+    // healthbar:
+    this.healthbar();
 
     // sockets:
     this.clientSocket = io(window.location.origin);
@@ -380,5 +387,31 @@ export default class MainScene extends Phaser.Scene {
         this.emitGameOver();
       }
     }
+  }
+
+  healthbar() {
+    this.player1HealthBorder = this.add
+      .image(100, 40, 'healthbar-border')
+      .setScale(3);
+    this.player1HealthBorder.displayWidth = 150;
+    this.player1Health = this.add.image(100, 40, 'healthbar');
+    this.player1Health.displayWidth = 138;
+    this.player1Health.displayHeight = 6;
+    this.add.text(65, 10, 'Player 1', {
+      fontSize: '16px',
+      fill: '#000',
+    });
+
+    this.player2HealthBorder = this.add
+      .image(700, 40, 'healthbar-border')
+      .setScale(3);
+    this.player2HealthBorder.displayWidth = 150;
+    this.player2Health = this.add.image(700, 40, 'healthbar');
+    this.player2Health.displayWidth = 138;
+    this.player2Health.displayHeight = 6;
+    this.add.text(665, 10, 'Player 2', {
+      fontSize: '16px',
+      fill: '#000',
+    });
   }
 }
