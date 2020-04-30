@@ -22,7 +22,7 @@ export default class MainScene extends Phaser.Scene {
     this.fireWeapon = this.fireWeapon.bind(this);
     this.hit = this.hit.bind(this);
     this.disableBullet = this.disableBullet.bind(this);
-    this.collisionEnemyToEnemy = this.collisionEnemyToEnemy.bind(this);
+    this.collisionEnemyToPlayer = this.collisionEnemyToPlayer.bind(this);
     this.collisionPlayerToEnemy = this.collisionPlayerToEnemy.bind(this);
     this.emitGameOver = this.emitGameOver.bind(this);
     this.healthbar = this.healthbar.bind(this);
@@ -355,13 +355,13 @@ export default class MainScene extends Phaser.Scene {
     // from Player perspective: if bullet is friendly and its hits an enemy, it should disappear
     // but if the bullet is an enemy bullet and fired from the other player, it shouldn't collide with other player
     if (!bullet.enemyBullet && target.name === 'OtherPlayer') {
-      this.collisionEnemyToEnemy(target, bullet);
+      this.collisionPlayerToEnemy(target, bullet);
       this.disableBullet(bullet);
     }
 
     // if it is an enemy bullet and it hits the player, then bullet disappears
     if (bullet.enemyBullet && target.name === 'Player') {
-      this.collisionPlayerToEnemy(target, bullet);
+      this.collisionEnemyToPlayer(target, bullet);
       this.disableBullet(bullet);
     }
   }
@@ -369,19 +369,22 @@ export default class MainScene extends Phaser.Scene {
     bullet.setActive(false);
     bullet.setVisible(false);
   }
-  collisionEnemyToEnemy(target, bullet) {
+  collisionPlayerToEnemy(target, bullet) {
     if (bullet.active) {
       target.health -= 10;
-
+      this.otherPlayerHealth.displayWidth -= 13.8;
+      this.otherPlayerHealth.x -= 6.9;
       if (target.health <= 0) {
         this.physics.pause();
         this.emitGameOver();
       }
     }
   }
-  collisionPlayerToEnemy(target, bullet) {
+  collisionEnemyToPlayer(target, bullet) {
     if (bullet.active) {
       target.health -= 10;
+      this.playerHealth.displayWidth -= 13.8;
+      this.playerHealth.x -= 6.9;
       if (target.health <= 0) {
         this.physics.pause();
         this.emitGameOver();
@@ -390,26 +393,26 @@ export default class MainScene extends Phaser.Scene {
   }
 
   healthbar() {
-    this.player1HealthBorder = this.add
+    this.playerHealthBorder = this.add
       .image(100, 40, 'healthbar-border')
       .setScale(3);
-    this.player1HealthBorder.displayWidth = 150;
-    this.player1Health = this.add.image(100, 40, 'healthbar');
-    this.player1Health.displayWidth = 138;
-    this.player1Health.displayHeight = 6;
+    this.playerHealthBorder.displayWidth = 150;
+    this.playerHealth = this.add.image(100, 40, 'healthbar');
+    this.playerHealth.displayWidth = 138;
+    this.playerHealth.displayHeight = 6;
     this.add.text(65, 10, 'Player 1', {
       fontSize: '16px',
       fill: '#000',
     });
 
-    this.player2HealthBorder = this.add
+    this.otherPlayerHealthBorder = this.add
       .image(700, 40, 'healthbar-border')
       .setScale(3);
-    this.player2HealthBorder.displayWidth = 150;
-    this.player2Health = this.add.image(700, 40, 'healthbar');
-    this.player2Health.displayWidth = 138;
-    this.player2Health.displayHeight = 6;
-    this.add.text(665, 10, 'Player 2', {
+    this.otherPlayerHealthBorder.displayWidth = 150;
+    this.otherPlayerHealth = this.add.image(700, 40, 'healthbar');
+    this.otherPlayerHealth.displayWidth = 138;
+    this.otherPlayerHealth.displayHeight = 6;
+    this.add.text(675, 10, 'Enemy', {
       fontSize: '16px',
       fill: '#000',
     });
