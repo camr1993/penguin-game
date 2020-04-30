@@ -29,9 +29,10 @@ export default class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('sky', 'assets/sky3.png');
+    this.load.image('sky', 'assets/sky2.png');
     this.load.image('tree', 'assets/tree.png');
-    this.load.image('platform', 'assets/platform.png');
+    this.load.image('platform', 'assets/ice-platform.png');
+    this.load.image('platform-bottom', 'assets/bottom2.png');
     this.load.image('pistol', 'assets/pistol.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('healthbar-border', 'assets/healthbar-border.png');
@@ -66,8 +67,10 @@ export default class MainScene extends Phaser.Scene {
 
     // platforms:
     this.platforms = this.physics.add.staticGroup();
-    this.bottom = this.platforms.create(533.5, 580, 'platform');
-    this.bottom.displayWidth = 1067;
+    this.platforms = this.physics.add.staticGroup();
+    this.bottom = this.platforms.create(533.5, 580, 'platform-bottom');
+    // this.bottom = this.platforms.create(533.5, 583, 'platform-bottom');
+    // this.bottom.displayWidth = 1067;
     this.bottom.displayHeight = 40;
     this.bottom.refreshBody();
     this.platforms.create(600, 475, 'platform');

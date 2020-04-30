@@ -6,7 +6,7 @@ export default class TitleScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('sky', 'assets/sky3.png');
+    this.load.image('sky', 'assets/sky2.png');
   }
   create() {
     this.add.image(533.5, 300, 'sky').setScale(0.56);
