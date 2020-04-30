@@ -6,10 +6,10 @@ export default class TitleScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('sky', 'assets/sky.png');
+    this.load.image('sky', 'assets/sky3.png');
   }
   create() {
-    this.add.image(400, 300, 'sky');
+    this.add.image(533.5, 300, 'sky').setScale(0.56);
     let startButton = this.add.text(400, 300, 'Welcome homie');
     startButton.setInteractive({ useHandCursor: true });
     startButton.on('pointerdown', () => {

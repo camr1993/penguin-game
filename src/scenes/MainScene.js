@@ -29,7 +29,7 @@ export default class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('sky', 'assets/sky.png');
+    this.load.image('sky', 'assets/sky3.png');
     this.load.image('tree', 'assets/tree.png');
     this.load.image('platform', 'assets/platform.png');
     this.load.image('pistol', 'assets/pistol.png');
@@ -59,17 +59,20 @@ export default class MainScene extends Phaser.Scene {
     });
 
     // background:
-    this.add.image(400, 300, 'sky');
+    this.add.image(533.5, 300, 'sky').setScale(0.56);
     // tree
     // this.trees = this.physics.add.staticGroup();
     // this.trees.create(200, 493, 'tree').setScale(1.5);
 
     // platforms:
     this.platforms = this.physics.add.staticGroup();
-    this.platforms.create(400, 568, 'platform').setScale(2).refreshBody();
-    this.platforms.create(600, 400, 'platform');
-    this.platforms.create(50, 250, 'platform');
-    this.platforms.create(750, 200, 'platform');
+    this.bottom = this.platforms.create(533.5, 580, 'platform');
+    this.bottom.displayWidth = 1067;
+    this.bottom.displayHeight = 40;
+    this.bottom.refreshBody();
+    this.platforms.create(600, 475, 'platform');
+    this.platforms.create(50, 400, 'platform');
+    this.platforms.create(1017, 325, 'platform');
 
     // healthbar:
     this.healthbar();
@@ -408,13 +411,13 @@ export default class MainScene extends Phaser.Scene {
     });
 
     this.otherPlayerHealthBorder = this.add
-      .image(700, 40, 'healthbar-border')
+      .image(967, 40, 'healthbar-border')
       .setScale(3);
     this.otherPlayerHealthBorder.displayWidth = 150;
-    this.otherPlayerHealth = this.add.image(700, 40, 'healthbar');
+    this.otherPlayerHealth = this.add.image(967, 40, 'healthbar');
     this.otherPlayerHealth.displayWidth = 138;
     this.otherPlayerHealth.displayHeight = 6;
-    this.add.text(675, 10, 'Enemy', {
+    this.add.text(945, 10, 'Enemy', {
       fontSize: '16px',
       fill: '#000',
     });

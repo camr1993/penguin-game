@@ -26,7 +26,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
   reset(x, y, facingLeft) {
     this.setActive(true);
     this.setVisible(true);
-    this.lifespan = 900;
+    this.lifespan = 1500;
     this.facingLeft = facingLeft;
     this.setPosition(x, y);
     this.emitted = false;
@@ -34,7 +34,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
   resetEmitted(x, y, facingLeft) {
     this.setActive(true);
     this.setVisible(true);
-    this.lifespan = 900;
+    this.lifespan = 1500;
     this.facingLeft = facingLeft;
     this.setPosition(x, y);
     this.emitted = true;

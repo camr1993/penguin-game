@@ -5,7 +5,7 @@ import TitleScene from './scenes/TitleScene';
 
 var config = {
   type: Phaser.AUTO,
-  width: 800,
+  width: 1067,
   height: 600,
   autoFocus: false,
   render: {
@@ -14,7 +14,7 @@ var config = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 600 },
+      gravity: { y: 1000 },
       debug: false,
     },
   },
