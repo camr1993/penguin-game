@@ -15,11 +15,16 @@ export default class MainScene extends Phaser.Scene {
     this.emitBullets = this.emitBullets.bind(this);
     this.pistolSockets = this.pistolSockets.bind(this);
     this.bulletSockets = this.bulletSockets.bind(this);
+    this.gameOverSocket = this.gameOverSocket.bind(this);
     this.addPlayer = this.addPlayer.bind(this);
     this.addOtherPlayers = this.addOtherPlayers.bind(this);
     this.pickupWeapon = this.pickupWeapon.bind(this);
     this.fireWeapon = this.fireWeapon.bind(this);
     this.hit = this.hit.bind(this);
+    this.disableBullet = this.disableBullet.bind(this);
+    this.collisionEnemyToEnemy = this.collisionEnemyToEnemy.bind(this);
+    this.collisionPlayerToEnemy = this.collisionPlayerToEnemy.bind(this);
+    this.emitGameOver = this.emitGameOver.bind(this);
   }
 
   preload() {
@@ -70,6 +75,7 @@ export default class MainScene extends Phaser.Scene {
     this.movementSockets();
     this.pistolSockets();
     this.bulletSockets();
+    this.gameOverSocket();
 
     // player things:
     this.createPlayerAnims();
@@ -226,6 +232,11 @@ export default class MainScene extends Phaser.Scene {
       bullet.resetEmitted(bulletData.x, bulletData.y, bulletData.facingLeft);
     });
   }
+  gameOverSocket() {
+    this.clientSocket.on('gameHasEnded', () => {
+      this.physics.pause();
+    });
+  }
 
   emitPlayerMovement() {
     let x = this.player.x;
@@ -267,6 +278,9 @@ export default class MainScene extends Phaser.Scene {
         bullet.emitted = true;
       }
     });
+  }
+  emitGameOver() {
+    this.clientSocket.emit('gameOver');
   }
 
   addPlayer(playerInfo) {
@@ -328,50 +342,43 @@ export default class MainScene extends Phaser.Scene {
     //     this.player2Health.displayWidth -= 13.8;
     //     this.player2Health.x -= 6.9;
     //   }
-    //   if (target.health <= 0) {
-    //     this.physics.pause();
-    //     target.clearTint();
-    //     target.setTint(0xff0000);
-    //     this.gameOver = true;
-    //   }
-    // }
     if (target.body.immovable) {
-      bullet.setActive(false);
-      bullet.setVisible(false);
+      this.disableBullet(bullet);
     }
     // from Player perspective: if bullet is friendly and its hits an enemy, it should disappear
     // but if the bullet is an enemy bullet and fired from the other player, it shouldn't collide with other player
     if (!bullet.enemyBullet && target.name === 'OtherPlayer') {
-      if (bullet.active) {
-        target.health -= 10;
-        console.log(target.health);
-        if (target.health <= 0) {
-          this.physics.pause();
-          target.clearTint();
-          target.setTint(0xff0000);
-          this.gameOver = true;
-        }
-      }
-
-      bullet.setActive(false);
-      bullet.setVisible(false);
+      this.collisionEnemyToEnemy(target, bullet);
+      this.disableBullet(bullet);
     }
 
     // if it is an enemy bullet and it hits the player, then bullet disappears
     if (bullet.enemyBullet && target.name === 'Player') {
-      if (bullet.active) {
-        target.health -= 10;
-        console.log(target.health);
-        if (target.health <= 0) {
-          this.physics.pause();
-          target.clearTint();
-          target.setTint(0xff0000);
-          this.gameOver = true;
-        }
-      }
+      this.collisionPlayerToEnemy(target, bullet);
+      this.disableBullet(bullet);
+    }
+  }
+  disableBullet(bullet) {
+    bullet.setActive(false);
+    bullet.setVisible(false);
+  }
+  collisionEnemyToEnemy(target, bullet) {
+    if (bullet.active) {
+      target.health -= 10;
 
-      bullet.setActive(false);
-      bullet.setVisible(false);
+      if (target.health <= 0) {
+        this.physics.pause();
+        this.emitGameOver();
+      }
+    }
+  }
+  collisionPlayerToEnemy(target, bullet) {
+    if (bullet.active) {
+      target.health -= 10;
+      if (target.health <= 0) {
+        this.physics.pause();
+        this.emitGameOver();
+      }
     }
   }
 }

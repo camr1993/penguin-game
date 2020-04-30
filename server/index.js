@@ -72,6 +72,9 @@ socketListener.on('connect', function (socket) {
   socket.on('bulletFired', (bulletData) => {
     socket.broadcast.emit('incomingBullet', bulletData);
   });
+  socket.on('gameOver', () => {
+    socket.broadcast.emit('gameHasEnded');
+  });
 });
 
 app.use(express.static(path.join(__dirname, '../public')));
