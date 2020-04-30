@@ -3,8 +3,14 @@ const app = express();
 const path = require('path');
 const createSocketListener = require('socket.io');
 
+let port = process.env.PORT;
+if (!port) {
+  port = 3000;
+}
+
 // app.listen() returns an http.Server object
-const server = app.listen(3000, () => {
+const server = app.listen(port, () => {
+  console.log(port);
   console.log(`Listening on http://localhost:${server.address().port}`);
 });
 
