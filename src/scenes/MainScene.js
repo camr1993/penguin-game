@@ -19,6 +19,7 @@ export default class MainScene extends Phaser.Scene {
     this.addOtherPlayers = this.addOtherPlayers.bind(this);
     this.pickupWeapon = this.pickupWeapon.bind(this);
     this.fireWeapon = this.fireWeapon.bind(this);
+    this.hit = this.hit.bind(this);
   }
 
   preload() {
@@ -341,12 +342,34 @@ export default class MainScene extends Phaser.Scene {
     // from Player perspective: if bullet is friendly and its hits an enemy, it should disappear
     // but if the bullet is an enemy bullet and fired from the other player, it shouldn't collide with other player
     if (!bullet.enemyBullet && target.name === 'OtherPlayer') {
+      if (bullet.active) {
+        target.health -= 10;
+        console.log(target.health);
+        if (target.health <= 0) {
+          this.physics.pause();
+          target.clearTint();
+          target.setTint(0xff0000);
+          this.gameOver = true;
+        }
+      }
+
       bullet.setActive(false);
       bullet.setVisible(false);
     }
 
     // if it is an enemy bullet and it hits the player, then bullet disappears
     if (bullet.enemyBullet && target.name === 'Player') {
+      if (bullet.active) {
+        target.health -= 10;
+        console.log(target.health);
+        if (target.health <= 0) {
+          this.physics.pause();
+          target.clearTint();
+          target.setTint(0xff0000);
+          this.gameOver = true;
+        }
+      }
+
       bullet.setActive(false);
       bullet.setVisible(false);
     }
