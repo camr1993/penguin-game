@@ -253,7 +253,7 @@ export default class MainScene extends Phaser.Scene {
     if (
       this.player.oldPosition &&
       (x !== this.player.oldPosition.x ||
-        y !== this.player.oldPosition.y ||
+        y.toFixed() !== this.player.oldPosition.y.toFixed() ||
         facingLeft !== this.player.oldPosition.facingLeft ||
         holdingWeapon !== this.player.oldPosition.holdingWeapon)
     ) {
@@ -303,9 +303,11 @@ export default class MainScene extends Phaser.Scene {
       'penguin'
     );
     if (playerInfo.team === 'blue') {
-      otherPlayer.setTint(0x0000ff);
+      otherPlayer.setTint(0x0000ff); // 0x0000ff
+      otherPlayer.clearTint();
     } else {
-      otherPlayer.setTint(0xff0000);
+      otherPlayer.setTint(0x0ff0000); // 0xff0000
+      otherPlayer.clearTint();
     }
     otherPlayer.setScale(0.75);
     otherPlayer.setCollideWorldBounds(true);
