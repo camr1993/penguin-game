@@ -6,7 +6,7 @@ import Bullet from '../entities/Bullet';
 
 export default class MainScene extends Phaser.Scene {
   constructor() {
-    super('MainSceneTest');
+    super('MainScene');
 
     this.gameOver = false;
     this.setupSockets = this.setupSockets.bind(this);
