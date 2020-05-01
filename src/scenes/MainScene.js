@@ -8,6 +8,7 @@ export default class MainScene extends Phaser.Scene {
   constructor() {
     super('MainScene');
 
+    this.pistolId = 0;
     this.gameOver = false;
     this.setupSockets = this.setupSockets.bind(this);
     this.movementSockets = this.movementSockets.bind(this);
@@ -76,8 +77,8 @@ export default class MainScene extends Phaser.Scene {
     this.bottom.displayHeight = 40;
     this.bottom.refreshBody();
     this.platforms.create(800, 475, 'platform');
-    this.platforms.create(50, 400, 'platform');
-    this.platforms.create(1017, 325, 'platform');
+    this.platforms.create(50, 500, 'platform');
+    this.platforms.create(1017, 400, 'platform');
 
     // healthbar:
     this.healthbar();
@@ -91,6 +92,34 @@ export default class MainScene extends Phaser.Scene {
     this.pistolSockets();
     this.bulletSockets();
     this.gameOverSocket();
+    this.clientSocket.on('host', () => {
+      console.log('I am the host');
+    });
+    this.clientSocket.on('player2', () => {
+      console.log('I am player2');
+      this.clientSocket.emit('player2-ready');
+    });
+    this.clientSocket.on('startGame', () => {
+      const pistol = this.pistols.create(100, 100, 'pistol');
+      this.pistolId++;
+      pistol.id = this.pistolId;
+      console.log('pistol1', pistol);
+      this.clientSocket.emit('pistolCreated', {
+        x: 100,
+        y: 100,
+        id: pistol.id,
+      });
+
+      const pistol2 = this.pistols.create(900, 100, 'pistol');
+      this.pistolId++;
+      pistol2.id = this.pistolId;
+      console.log('pistol2', pistol2);
+      this.clientSocket.emit('pistolCreated', {
+        x: 900,
+        y: 100,
+        id: pistol2.id,
+      });
+    });
 
     // player things:
     this.createPlayerAnims();
@@ -120,11 +149,7 @@ export default class MainScene extends Phaser.Scene {
   collisions() {
     this.physics.add.collider(this.players, this.platforms);
     this.physics.add.collider(this.pistols, this.platforms);
-    console.log(this.players);
-    console.log(this.blocks);
-    this.physics.add.collider(this.players, this.blocks, () => {
-      console.log('collide');
-    });
+    this.physics.add.collider(this.players, this.blocks);
     // this.physics.add.collider(this.pistols, this.blocks);
 
     this.physics.add.collider(this.otherPlayers, this.platforms);
@@ -265,7 +290,7 @@ export default class MainScene extends Phaser.Scene {
     if (
       this.player.oldPosition &&
       (x !== this.player.oldPosition.x ||
-        y.toFixed() !== this.player.oldPosition.y.toFixed() ||
+        y.toFixed(3) !== this.player.oldPosition.y.toFixed(3) ||
         facingLeft !== this.player.oldPosition.facingLeft ||
         holdingWeapon !== this.player.oldPosition.holdingWeapon)
     ) {

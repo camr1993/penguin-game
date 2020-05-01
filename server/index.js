@@ -52,37 +52,33 @@ socketListener.on('connect', function (socket) {
 
   // send the players object to the new player
   socket.emit('currentPlayers', players);
-  if (connectCounter === 2) {
-    // send the pistol object to the new player
-    setTimeout(() => {
-      socket.emit('pistolLocation', {
-        x: 200,
-        y: 50,
-        id: newId(),
-      });
-      socket.emit('pistolLocation', {
-        x: 150,
-        y: 50,
-        id: newId(),
-      });
-    }, 5000);
-  }
-  // setTimeout(() => {
-  //   socket.emit('pistolLocation', {
-  //     x: 200,
-  //     y: 50,
-  //     id: newId(),
-  //   });
-  // }, 5000);
-  // setTimeout(() => {
-  //   socket.emit('pistolLocation', {
-  //     x: 250,
-  //     y: 50,
-  //     id: newId(),
-  //   });
-  // }, 10000);
+
   // update all other players of the new player
   socket.broadcast.emit('newPlayer', players[socket.id]);
+
+  if (connectCounter === 1) {
+    socket.emit('host');
+  }
+  if (connectCounter === 2) {
+    socket.emit('player2');
+  }
+  socket.on('player2-ready', () => {
+    socket.broadcast.emit('startGame');
+  });
+  socket.on('pistolCreated', (pistolInfo) => {
+    socket.broadcast.emit('pistolLocation', pistolInfo);
+  });
+
+  // socket.emit('pistolLocation', {
+  //   x: 175,
+  //   y: 50,
+  //   id: 1,
+  // });
+  // socket.emit('pistolLocation', {
+  //   x: 200,
+  //   y: 50,
+  //   id: 2,
+  // });
 
   // when a player disconnects, remove them from our players object
   socket.on('disconnect', () => {
