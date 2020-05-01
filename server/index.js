@@ -105,7 +105,7 @@ socketListener.on('connect', function (socket) {
     socket.broadcast.emit('incomingBullet', bulletData);
   });
   socket.on('gameOver', () => {
-    socket.broadcast.emit('gameHasEnded');
+    socket.emit('gameHasEnded');
   });
 });
 

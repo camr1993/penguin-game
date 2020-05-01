@@ -429,7 +429,6 @@ export default class MainScene extends Phaser.Scene {
       this.otherPlayerHealth.x -= 6.9;
       if (target.health <= 0) {
         this.emitGameOver();
-        this.physics.pause();
       }
     }
   }
@@ -440,7 +439,6 @@ export default class MainScene extends Phaser.Scene {
       this.playerHealth.x -= 6.9;
       if (target.health <= 0) {
         this.emitGameOver();
-        this.physics.pause();
       }
     }
   }

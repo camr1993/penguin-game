@@ -42,7 +42,6 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.enemyBullet = true;
   }
 
-  // maybe can pass down a true/false that checks for collision?
   update(time, delta) {
     this.lifespan -= delta;
     const moveDistance = this.speed * delta;
