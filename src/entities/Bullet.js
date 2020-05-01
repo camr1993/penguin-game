@@ -39,7 +39,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.facingLeft = facingLeft;
     this.setPosition(x, y);
     this.emitted = true;
-    this.enemyBullet = false;
+    this.enemyBullet = true;
   }
 
   // maybe can pass down a true/false that checks for collision?

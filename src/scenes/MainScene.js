@@ -103,7 +103,6 @@ export default class MainScene extends Phaser.Scene {
       const pistol = this.pistols.create(100, 100, 'pistol');
       this.pistolId++;
       pistol.id = this.pistolId;
-      console.log('pistol1', pistol);
       this.clientSocket.emit('pistolCreated', {
         x: 100,
         y: 100,
@@ -113,7 +112,6 @@ export default class MainScene extends Phaser.Scene {
       const pistol2 = this.pistols.create(900, 100, 'pistol');
       this.pistolId++;
       pistol2.id = this.pistolId;
-      console.log('pistol2', pistol2);
       this.clientSocket.emit('pistolCreated', {
         x: 900,
         y: 100,
@@ -141,9 +139,9 @@ export default class MainScene extends Phaser.Scene {
         pistol.update(time, this.cursors, this.player, this.fireWeapon);
       });
     }
-    if (this.bullets.getChildren().length) {
-      this.emitBullets();
-    }
+    // if (this.bullets.getChildren().length) {
+    //   this.emitBullets();
+    // }
   }
 
   collisions() {
@@ -244,7 +242,6 @@ export default class MainScene extends Phaser.Scene {
   }
   pistolSockets() {
     this.clientSocket.on('pistolLocation', (pistolInfo) => {
-      console.log('new pistol', pistolInfo);
       const pistol = this.pistols.create(pistolInfo.x, pistolInfo.y, 'pistol');
       pistol.id = pistolInfo.id;
     });
@@ -258,8 +255,13 @@ export default class MainScene extends Phaser.Scene {
   }
   bulletSockets() {
     this.clientSocket.on('incomingBullet', (bulletData) => {
+      console.log(bulletData);
       // incoming bullet
       let bullet = this.bullets.getFirstDead();
+      if (bullet) {
+        bullet.resetEmitted(bulletData.x, bulletData.y, bulletData.facingLeft);
+        console.log('bullet reset!', bullet);
+      }
       if (!bullet) {
         bullet = new Bullet(
           this,
@@ -268,12 +270,11 @@ export default class MainScene extends Phaser.Scene {
           'bullet',
           bulletData.facingLeft,
           true,
-          true
+          bulletData.enemyBullet
         ).setScale(0.9);
         this.bullets.add(bullet);
+        console.log('brand new bullet!', bullet);
       }
-
-      bullet.resetEmitted(bulletData.x, bulletData.y, bulletData.facingLeft);
     });
   }
   gameOverSocket() {
@@ -311,17 +312,24 @@ export default class MainScene extends Phaser.Scene {
       holdingWeapon: this.player.currentWeapon.holding,
     };
   }
-  emitBullets() {
-    this.bullets.getChildren().forEach((bullet) => {
-      if (bullet.emitted === false) {
-        this.clientSocket.emit('bulletFired', {
-          x: bullet.x,
-          y: bullet.y,
-          facingLeft: bullet.facingLeft,
-        });
-        bullet.emitted = true;
-      }
+  emitBullets(bullet) {
+    this.clientSocket.emit('bulletFired', {
+      x: bullet.x,
+      y: bullet.y,
+      facingLeft: bullet.facingLeft,
+      enemyBullet: true,
     });
+
+    // this.bullets.getChildren().forEach((bullet) => {
+    //   if (bullet.emitted === false) {
+    //     this.clientSocket.emit('bulletFired', {
+    //       x: bullet.x,
+    //       y: bullet.y,
+    //       facingLeft: bullet.facingLeft,
+    //     });
+    //     bullet.emitted = true;
+    //   }
+    // });
   }
   emitGameOver() {
     this.clientSocket.emit('gameOver');
@@ -367,6 +375,9 @@ export default class MainScene extends Phaser.Scene {
 
     // Check if there are any dead bullets, if not then create a new one
     let bullet = this.bullets.getFirstDead();
+    if (bullet) {
+      bullet.reset(unitX, unitY, this.player.facingLeft);
+    }
     if (!bullet) {
       bullet = new Bullet(
         this,
@@ -378,8 +389,7 @@ export default class MainScene extends Phaser.Scene {
       ).setScale(0.9);
       this.bullets.add(bullet);
     }
-    console.log('bullet', bullet);
-    bullet.reset(unitX, unitY, this.player.facingLeft);
+    this.emitBullets(bullet);
   }
 
   hit(target, bullet) {
@@ -392,9 +402,12 @@ export default class MainScene extends Phaser.Scene {
     if (target.body.immovable) {
       this.disableBullet(bullet);
     }
+    // console.log('target name:', target.name);
+    // console.log('enemy bullet?', bullet.enemyBullet);
     // from Player perspective: if bullet is friendly and its hits an enemy, it should disappear
     // but if the bullet is an enemy bullet and fired from the other player, it shouldn't collide with other player
     if (!bullet.enemyBullet && target.name === 'OtherPlayer') {
+      // console.log('here!');
       this.collisionPlayerToEnemy(target, bullet);
       this.disableBullet(bullet);
     }
