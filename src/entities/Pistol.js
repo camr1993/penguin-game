@@ -7,7 +7,7 @@ export default class Pistol extends Phaser.Physics.Arcade.Sprite {
     this.scene.add.existing(this);
     this.scene.physics.world.enable(this);
 
-    this.fireDelay = 300;
+    this.fireDelay = 500;
     this.lastFired = 0;
   }
 

@@ -17,7 +17,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.scene.add.existing(this);
     this.scene.physics.world.enable(this);
 
-    this.speed = Phaser.Math.GetSpeed(800, 1); // distance in px, time in ms
+    this.speed = Phaser.Math.GetSpeed(400, 1); // distance in px, time in ms
     this.facingLeft = facingLeft;
     this.emitted = emitted;
     this.enemyBullet = enemyBullet;

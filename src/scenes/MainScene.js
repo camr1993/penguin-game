@@ -77,7 +77,7 @@ export default class MainScene extends Phaser.Scene {
     this.bottom = this.platforms.create(533.5, 585, 'platform-bottom');
     this.bottom.displayHeight = 40;
     this.bottom.refreshBody();
-    this.platforms.create(800, 475, 'platform');
+    this.platforms.create(800, 500, 'platform');
     this.platforms.create(50, 500, 'platform');
     this.platforms.create(1017, 400, 'platform');
 
