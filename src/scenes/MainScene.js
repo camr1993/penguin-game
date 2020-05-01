@@ -52,6 +52,7 @@ export default class MainScene extends Phaser.Scene {
     this.otherPlayers = this.add.group({
       classType: OtherPlayer,
       runChildUpdate: true,
+      // allowGravity: false,
     });
     this.pistols = this.physics.add.group({ classType: Pistol });
     // bullet(s):
