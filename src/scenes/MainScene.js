@@ -255,12 +255,10 @@ export default class MainScene extends Phaser.Scene {
   }
   bulletSockets() {
     this.clientSocket.on('incomingBullet', (bulletData) => {
-      console.log(bulletData);
       // incoming bullet
       let bullet = this.bullets.getFirstDead();
       if (bullet) {
         bullet.resetEmitted(bulletData.x, bulletData.y, bulletData.facingLeft);
-        console.log('bullet reset!', bullet);
       }
       if (!bullet) {
         bullet = new Bullet(
@@ -273,7 +271,6 @@ export default class MainScene extends Phaser.Scene {
           bulletData.enemyBullet
         ).setScale(0.9);
         this.bullets.add(bullet);
-        console.log('brand new bullet!', bullet);
       }
     });
   }
@@ -393,21 +390,13 @@ export default class MainScene extends Phaser.Scene {
   }
 
   hit(target, bullet) {
-    // if (bullet.active && target.health) {
-    //   target.health -= 10;
-    //   if (target.name === 'TestDummy') {
-    //     this.player2Health.displayWidth -= 13.8;
-    //     this.player2Health.x -= 6.9;
-    //   }
     if (target.body.immovable) {
       this.disableBullet(bullet);
     }
-    // console.log('target name:', target.name);
-    // console.log('enemy bullet?', bullet.enemyBullet);
+
     // from Player perspective: if bullet is friendly and its hits an enemy, it should disappear
     // but if the bullet is an enemy bullet and fired from the other player, it shouldn't collide with other player
     if (!bullet.enemyBullet && target.name === 'OtherPlayer') {
-      // console.log('here!');
       this.collisionPlayerToEnemy(target, bullet);
       this.disableBullet(bullet);
     }
