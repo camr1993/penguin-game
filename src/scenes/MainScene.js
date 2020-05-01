@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 import Phaser from 'phaser';
 import Player from '../entities/Player';
 import OtherPlayer from '../entities/OtherPlayer';
@@ -32,7 +33,7 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('sky', 'assets/sky2.png');
-    this.load.image('block', 'assets/block.png');
+    this.load.image('block', 'assets/block2.png');
     this.load.image('platform', 'assets/ice-platform.png');
     this.load.image('platform-bottom', 'assets/bottom.png');
     this.load.image('pistol', 'assets/pistol.png');
@@ -65,21 +66,25 @@ export default class MainScene extends Phaser.Scene {
     // background:
     this.add.image(533.5, 300, 'sky').setScale(0.56);
     // block
-    // this.blocks = this.physics.add.staticGroup();
-    // this.blocks.create(533.5, 538, 'block');
-    // this.blocks.create(533.5, 488, 'block');
-    // this.blocks.create(533.5, 438, 'block');
-    // this.blocks.create(533.5, 388, 'block');
-    // this.blocks.create(533.5, 488, 'block');
+    this.blocks = this.physics.add.staticGroup();
+    this.blocks.create(533.5, 538, 'block');
+    this.blocks.create(533.5, 488, 'block');
+    this.blocks.create(582.5, 538, 'block');
+    this.blocks.create(484.5, 538, 'block');
+
+    this.blocks.create(300, 200, 'block');
+    this.blocks.create(767, 200, 'block');
+    this.blocks.create(130, 290, 'block');
+    this.blocks.create(937, 290, 'block');
 
     // platforms:
     this.platforms = this.physics.add.staticGroup();
     this.bottom = this.platforms.create(533.5, 585, 'platform-bottom');
     this.bottom.displayHeight = 40;
     this.bottom.refreshBody();
-    this.platforms.create(800, 500, 'platform');
-    this.platforms.create(50, 500, 'platform');
-    this.platforms.create(1017, 400, 'platform');
+    this.platforms.create(800.25, 400, 'platform');
+    this.platforms.create(266.75, 400, 'platform');
+    this.platforms.create(533.5, 150, 'platform');
 
     // healthbar:
     this.healthbar();
@@ -149,15 +154,15 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.collider(this.players, this.platforms);
     this.physics.add.collider(this.pistols, this.platforms);
     this.physics.add.collider(this.players, this.blocks);
-    // this.physics.add.collider(this.pistols, this.blocks);
+    this.physics.add.collider(this.pistols, this.blocks);
 
     this.physics.add.collider(this.otherPlayers, this.platforms);
-    // this.physics.add.collider(this.otherPlayer, this.blocks);
+    this.physics.add.collider(this.otherPlayers, this.blocks);
     this.physics.add.overlap(this.otherPlayers, this.bullets, this.hit);
     this.physics.add.overlap(this.players, this.bullets, this.hit);
 
     this.physics.add.overlap(this.platforms, this.bullets, this.hit);
-    // this.physics.add.overlap(this.blocks, this.bullets, this.hit);
+    this.physics.add.overlap(this.blocks, this.bullets, this.hit);
     this.physics.add.overlap(
       this.players,
       this.pistols,

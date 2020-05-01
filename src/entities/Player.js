@@ -25,7 +25,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   jumpFromGround(cursors) {
     if (cursors.up.isDown && this.body.touching.down) {
-      this.setVelocityY(-450);
+      this.setVelocityY(-500);
     }
   }
 
@@ -41,7 +41,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.flipX = !this.flipX;
         this.facingLeft = true;
       }
-      this.setVelocityX(-150);
+      this.setVelocityX(-160);
       if (this.body.touching.down) {
         if (this.currentWeapon.holding) {
           this.anims.play(`run${this.currentWeapon.name}`, true);
@@ -64,7 +64,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.flipX = !this.flipX;
         this.facingLeft = false;
       }
-      this.setVelocityX(150);
+      this.setVelocityX(160);
       if (this.body.touching.down) {
         if (this.currentWeapon.holding) {
           this.anims.play(`run${this.currentWeapon.name}`, true);
