@@ -378,6 +378,7 @@ export default class MainScene extends Phaser.Scene {
       ).setScale(0.9);
       this.bullets.add(bullet);
     }
+    console.log('bullet', bullet);
     bullet.reset(unitX, unitY, this.player.facingLeft);
   }
 
