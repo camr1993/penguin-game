@@ -26,6 +26,7 @@ const newId = () => {
   return id;
 };
 
+let connectCounter = 0;
 const players = {};
 var pistol = {
   x: randCoord(),
@@ -39,10 +40,11 @@ socketListener.on('connect', function (socket) {
      This function will be called for EACH browser that connects to our server. */
   console.log('Server Side: A new client has connected!');
   console.log(socket.id);
+  connectCounter++;
 
   // create player in players obj and send info back to client
   players[socket.id] = {
-    x: randCoord(),
+    x: 500,
     y: 50,
     playerId: socket.id,
     team: Math.floor(Math.random() * 2) === 0 ? 'red' : 'blue',
@@ -50,8 +52,35 @@ socketListener.on('connect', function (socket) {
 
   // send the players object to the new player
   socket.emit('currentPlayers', players);
-  // send the pistol object to the new player
-  socket.emit('pistolLocation', pistol);
+  if (connectCounter === 2) {
+    // send the pistol object to the new player
+    setTimeout(() => {
+      socket.emit('pistolLocation', {
+        x: 200,
+        y: 50,
+        id: newId(),
+      });
+      socket.emit('pistolLocation', {
+        x: 150,
+        y: 50,
+        id: newId(),
+      });
+    }, 5000);
+  }
+  // setTimeout(() => {
+  //   socket.emit('pistolLocation', {
+  //     x: 200,
+  //     y: 50,
+  //     id: newId(),
+  //   });
+  // }, 5000);
+  // setTimeout(() => {
+  //   socket.emit('pistolLocation', {
+  //     x: 250,
+  //     y: 50,
+  //     id: newId(),
+  //   });
+  // }, 10000);
   // update all other players of the new player
   socket.broadcast.emit('newPlayer', players[socket.id]);
 
@@ -60,6 +89,7 @@ socketListener.on('connect', function (socket) {
     console.log('Server Side: We lost a client! Client down!');
     // remove from players object
     delete players[socket.id];
+    connectCounter--;
     // emit a message to all players to remove this player
     socketListener.emit('disconnect', socket.id);
   });

@@ -26,13 +26,14 @@ export default class MainScene extends Phaser.Scene {
     this.collisionPlayerToEnemy = this.collisionPlayerToEnemy.bind(this);
     this.emitGameOver = this.emitGameOver.bind(this);
     this.healthbar = this.healthbar.bind(this);
+    this.collisions = this.collisions.bind(this);
   }
 
   preload() {
     this.load.image('sky', 'assets/sky2.png');
-    this.load.image('tree', 'assets/tree.png');
+    this.load.image('block', 'assets/block.png');
     this.load.image('platform', 'assets/ice-platform.png');
-    this.load.image('platform-bottom', 'assets/bottom2.png');
+    this.load.image('platform-bottom', 'assets/bottom.png');
     this.load.image('pistol', 'assets/pistol.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('healthbar-border', 'assets/healthbar-border.png');
@@ -61,19 +62,20 @@ export default class MainScene extends Phaser.Scene {
 
     // background:
     this.add.image(533.5, 300, 'sky').setScale(0.56);
-    // tree
-    // this.trees = this.physics.add.staticGroup();
-    // this.trees.create(200, 493, 'tree').setScale(1.5);
+    // block
+    // this.blocks = this.physics.add.staticGroup();
+    // this.blocks.create(533.5, 538, 'block');
+    // this.blocks.create(533.5, 488, 'block');
+    // this.blocks.create(533.5, 438, 'block');
+    // this.blocks.create(533.5, 388, 'block');
+    // this.blocks.create(533.5, 488, 'block');
 
     // platforms:
     this.platforms = this.physics.add.staticGroup();
-    this.platforms = this.physics.add.staticGroup();
-    this.bottom = this.platforms.create(533.5, 580, 'platform-bottom');
-    // this.bottom = this.platforms.create(533.5, 583, 'platform-bottom');
-    // this.bottom.displayWidth = 1067;
+    this.bottom = this.platforms.create(533.5, 585, 'platform-bottom');
     this.bottom.displayHeight = 40;
     this.bottom.refreshBody();
-    this.platforms.create(600, 475, 'platform');
+    this.platforms.create(800, 475, 'platform');
     this.platforms.create(50, 400, 'platform');
     this.platforms.create(1017, 325, 'platform');
 
@@ -118,17 +120,20 @@ export default class MainScene extends Phaser.Scene {
   collisions() {
     this.physics.add.collider(this.players, this.platforms);
     this.physics.add.collider(this.pistols, this.platforms);
-    // this.physics.add.collider(this.player, this.trees);
-    // this.physics.add.collider(this.pistols, this.trees);
+    console.log(this.players);
+    console.log(this.blocks);
+    this.physics.add.collider(this.players, this.blocks, () => {
+      console.log('collide');
+    });
+    // this.physics.add.collider(this.pistols, this.blocks);
 
     this.physics.add.collider(this.otherPlayers, this.platforms);
-    // this.physics.add.collider(this.testDummy, this.trees);
-    // this.physics.add.collider(this.testDummy, this.player);
+    // this.physics.add.collider(this.otherPlayer, this.blocks);
     this.physics.add.overlap(this.otherPlayers, this.bullets, this.hit);
     this.physics.add.overlap(this.players, this.bullets, this.hit);
 
     this.physics.add.overlap(this.platforms, this.bullets, this.hit);
-    // this.physics.add.overlap(this.trees, this.bullets, this.hit);
+    // this.physics.add.overlap(this.blocks, this.bullets, this.hit);
     this.physics.add.overlap(
       this.players,
       this.pistols,
@@ -214,6 +219,7 @@ export default class MainScene extends Phaser.Scene {
   }
   pistolSockets() {
     this.clientSocket.on('pistolLocation', (pistolInfo) => {
+      console.log('new pistol', pistolInfo);
       const pistol = this.pistols.create(pistolInfo.x, pistolInfo.y, 'pistol');
       pistol.id = pistolInfo.id;
     });
