@@ -48,15 +48,10 @@ export default class EndSceneWin extends Phaser.Scene {
       fontSize: '18px',
       fill: '#000',
     });
-    let startButton = this.add.image(530, 360, 'start');
-    this.add.text(502, 351, 'Restart', {
+    this.add.text(420, 351, 'Refresh window to play again!', {
       fontFamily: 'Luminari',
       fontSize: '16px',
-    });
-    startButton.setInteractive({ useHandCursor: true });
-    startButton.on('pointerdown', () => {
-      this.sys.canvas.style.cursor = '';
-      this.scene.switch('MainScene');
+      fill: '#000',
     });
   }
 }

@@ -102,6 +102,9 @@ socketListener.on('connect', function (socket) {
   socket.on('gameOver', () => {
     socketListener.emit('gameHasEnded');
   });
+  socket.on('disconnectMe', () => {
+    socket.disconnect(0);
+  });
 });
 
 app.use(express.static(path.join(__dirname, '../public')));
