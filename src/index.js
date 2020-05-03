@@ -2,6 +2,7 @@
 import Phaser from 'phaser';
 import MainScene from './scenes/MainScene';
 import TitleScene from './scenes/TitleScene';
+import EndScene from './scenes/EndScene';
 
 var config = {
   type: Phaser.AUTO,
@@ -19,7 +20,7 @@ var config = {
     },
   },
   // this is saying there is one scene, and you are importing preload/create/update for that one scene
-  scene: [TitleScene, MainScene],
+  scene: [TitleScene, MainScene, EndScene],
 };
 
 const game = new Phaser.Game(config);
