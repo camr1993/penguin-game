@@ -19,7 +19,7 @@ var config = {
     },
   },
   // this is saying there is one scene, and you are importing preload/create/update for that one scene
-  scene: [MainScene],
+  scene: [TitleScene, MainScene],
 };
 
 const game = new Phaser.Game(config);
