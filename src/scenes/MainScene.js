@@ -470,16 +470,18 @@ export default class MainScene extends Phaser.Scene {
   }
 
   addHealth(target, heart) {
+    target.health = 100;
+    if (heart.active) {
+      if (target.name === 'Player') {
+        this.playerHealth.displayWidth = 138;
+        this.playerHealth.x = 100;
+      } else {
+        this.otherPlayerHealth.displayWidth = 138;
+        this.otherPlayerHealth.x = 967;
+      }
+    }
     heart.setActive(false);
     heart.setVisible(false);
-    target.health = 100;
-    if (target.name === 'Player') {
-      this.playerHealth.displayWidth = 138;
-      this.playerHealth.x = 100;
-    } else {
-      this.otherPlayerHealth.displayWidth = 138;
-      this.otherPlayerHealth.x = 967;
-    }
   }
 
   healthbar() {
