@@ -26,13 +26,9 @@ const newId = () => {
   return id;
 };
 
+let playerX = 20;
 let connectCounter = 0;
 const players = {};
-var pistol = {
-  x: randCoord(),
-  y: 50,
-  id: newId(),
-};
 
 // .on listens for an emit (action), .emit sends an action
 socketListener.on('connect', function (socket) {
@@ -41,14 +37,18 @@ socketListener.on('connect', function (socket) {
   console.log('Server Side: A new client has connected!');
   console.log(socket.id);
   connectCounter++;
-
   // create player in players obj and send info back to client
   players[socket.id] = {
-    x: 500,
-    y: 50,
+    x: playerX,
+    y: 450,
     playerId: socket.id,
     team: Math.floor(Math.random() * 2) === 0 ? 'red' : 'blue',
   };
+  if (playerX === 20) {
+    playerX = 1047;
+  } else {
+    playerX = 20;
+  }
 
   // send the players object to the new player
   socket.emit('currentPlayers', players);
@@ -68,17 +68,6 @@ socketListener.on('connect', function (socket) {
   socket.on('pistolCreated', (pistolInfo) => {
     socket.broadcast.emit('pistolLocation', pistolInfo);
   });
-
-  // socket.emit('pistolLocation', {
-  //   x: 175,
-  //   y: 50,
-  //   id: 1,
-  // });
-  // socket.emit('pistolLocation', {
-  //   x: 200,
-  //   y: 50,
-  //   id: 2,
-  // });
 
   // when a player disconnects, remove them from our players object
   socket.on('disconnect', () => {

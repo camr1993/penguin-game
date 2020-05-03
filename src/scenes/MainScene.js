@@ -29,6 +29,7 @@ export default class MainScene extends Phaser.Scene {
     this.emitGameOver = this.emitGameOver.bind(this);
     this.healthbar = this.healthbar.bind(this);
     this.collisions = this.collisions.bind(this);
+    this.addHealth = this.addHealth.bind(this);
   }
 
   preload() {
@@ -38,6 +39,7 @@ export default class MainScene extends Phaser.Scene {
     this.load.image('platform-bottom', 'assets/bottom.png');
     this.load.image('pistol', 'assets/pistol.png');
     this.load.image('bullet', 'assets/bullet.png');
+    this.load.image('heart', 'assets/heart.png');
     this.load.image('healthbar-border', 'assets/healthbar-border.png');
     this.load.image('healthbar', 'assets/healthbar.png');
     this.load.spritesheet('penguin', 'assets/penguin.png', {
@@ -86,6 +88,10 @@ export default class MainScene extends Phaser.Scene {
     this.platforms.create(266.75, 400, 'platform');
     this.platforms.create(533.5, 150, 'platform');
 
+    // heart:
+    this.hearts = this.physics.add.group();
+    this.hearts.create(533.5, 10, 'heart').setScale(0.7);
+
     // healthbar:
     this.healthbar();
 
@@ -106,23 +112,45 @@ export default class MainScene extends Phaser.Scene {
       this.clientSocket.emit('player2-ready');
     });
     this.clientSocket.on('startGame', () => {
-      const pistol = this.pistols.create(100, 100, 'pistol');
-      this.pistolId++;
-      pistol.id = this.pistolId;
-      this.clientSocket.emit('pistolCreated', {
-        x: 100,
-        y: 100,
-        id: pistol.id,
-      });
+      setTimeout(() => {
+        let x = Math.floor(Math.random() * 533) + 1;
+        const pistol = this.pistols.create(x, 20, 'pistol');
+        this.pistolId++;
+        pistol.id = this.pistolId;
+        this.clientSocket.emit('pistolCreated', {
+          x: x,
+          y: 20,
+          id: pistol.id,
+        });
 
-      const pistol2 = this.pistols.create(900, 100, 'pistol');
-      this.pistolId++;
-      pistol2.id = this.pistolId;
-      this.clientSocket.emit('pistolCreated', {
-        x: 900,
-        y: 100,
-        id: pistol2.id,
-      });
+        const pistol2 = this.pistols.create(1067 - x, 100, 'pistol');
+        this.pistolId++;
+        pistol2.id = this.pistolId;
+        this.clientSocket.emit('pistolCreated', {
+          x: 1067 - x,
+          y: 100,
+          id: pistol2.id,
+        });
+      }, 7000);
+
+      // let x = Math.floor(Math.random() * 533) + 1;
+      // const pistol = this.pistols.create(x, 20, 'pistol');
+      // this.pistolId++;
+      // pistol.id = this.pistolId;
+      // this.clientSocket.emit('pistolCreated', {
+      //   x: x,
+      //   y: 20,
+      //   id: pistol.id,
+      // });
+
+      // const pistol2 = this.pistols.create(1067 - x, 100, 'pistol');
+      // this.pistolId++;
+      // pistol2.id = this.pistolId;
+      // this.clientSocket.emit('pistolCreated', {
+      //   x: 1067 - x,
+      //   y: 100,
+      //   id: pistol2.id,
+      // });
     });
 
     // player things:
@@ -155,11 +183,15 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.collider(this.pistols, this.platforms);
     this.physics.add.collider(this.players, this.blocks);
     this.physics.add.collider(this.pistols, this.blocks);
+    this.physics.add.collider(this.hearts, this.platforms);
 
     this.physics.add.collider(this.otherPlayers, this.platforms);
     this.physics.add.collider(this.otherPlayers, this.blocks);
     this.physics.add.overlap(this.otherPlayers, this.bullets, this.hit);
     this.physics.add.overlap(this.players, this.bullets, this.hit);
+
+    this.physics.add.overlap(this.players, this.hearts, this.addHealth);
+    this.physics.add.overlap(this.otherPlayers, this.hearts, this.addHealth);
 
     this.physics.add.overlap(this.platforms, this.bullets, this.hit);
     this.physics.add.overlap(this.blocks, this.bullets, this.hit);
@@ -436,6 +468,18 @@ export default class MainScene extends Phaser.Scene {
         this.emitGameOver();
       }
     }
+  }
+
+  addHealth(target, heart) {
+    heart.setActive(false);
+    heart.setVisible(false);
+    target.health = 100;
+    if (target.name === 'Player') {
+      this.playerHealth.displayWidth = 138;
+    } else {
+      this.otherPlayerHealth.displayWidth = 138;
+    }
+    console.log(target.health);
   }
 
   healthbar() {
