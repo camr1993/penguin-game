@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 
-export default class EndScene extends Phaser.Scene {
+export default class EndSceneWin extends Phaser.Scene {
   constructor() {
-    super('EndScene');
+    super('EndSceneWin');
   }
 
   preload() {
@@ -43,20 +43,20 @@ export default class EndScene extends Phaser.Scene {
 
     this.add.image(533.5, 260, 'loading');
     this.add.image(530, 260, 'penguin');
-    this.add.text(420, 165, 'Player X wins!', {
+    this.add.text(490, 165, 'You Win!', {
       fontFamily: 'Luminari',
       fontSize: '18px',
       fill: '#000',
     });
     let startButton = this.add.image(530, 360, 'start');
-    this.add.text(509, 351, 'Start', {
+    this.add.text(502, 351, 'Restart', {
       fontFamily: 'Luminari',
       fontSize: '16px',
     });
     startButton.setInteractive({ useHandCursor: true });
     startButton.on('pointerdown', () => {
       this.sys.canvas.style.cursor = '';
-      this.scene.switch('TitleScene');
+      this.scene.switch('MainScene');
     });
   }
 }

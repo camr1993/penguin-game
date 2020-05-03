@@ -321,8 +321,12 @@ export default class MainScene extends Phaser.Scene {
   gameOverSocket() {
     this.clientSocket.on('gameHasEnded', () => {
       this.physics.pause();
-      this.clientSocket.emit('disconnectMe');
-      this.scene.switch('TitleScene');
+      // this.clientSocket.emit('disconnectMe');
+      if (this.player.health === 0) {
+        this.scene.switch('EndSceneLose');
+      } else {
+        this.scene.switch('EndSceneWin');
+      }
     });
   }
 
