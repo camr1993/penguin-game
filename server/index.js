@@ -68,6 +68,9 @@ socketListener.on('connect', function (socket) {
   socket.on('player2-ready', () => {
     socket.broadcast.emit('startGame');
   });
+  socket.on('removeWaitingText', () => {
+    socket.broadcast.emit('remove');
+  });
   socket.on('pistolCreated', (pistolInfo) => {
     socket.broadcast.emit('pistolLocation', pistolInfo);
   });

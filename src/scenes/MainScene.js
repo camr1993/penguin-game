@@ -49,6 +49,10 @@ export default class MainScene extends Phaser.Scene {
       frameWidth: 64,
       frameHeight: 75,
     });
+    this.load.spritesheet('dots', 'assets/dots.png', {
+      frameWidth: 32,
+      frameHeight: 8,
+    });
   }
   create() {
     // groups:
@@ -94,6 +98,19 @@ export default class MainScene extends Phaser.Scene {
     // heart:
     this.hearts = this.physics.add.group();
 
+    // waiting text:
+    this.waiting = this.add.text(430, 50, 'Waiting For Player 2', {
+      fontSize: '18px',
+      fill: '#000',
+    });
+    this.dots = this.add.sprite(659, 63, 'dots').setScale(0.5);
+    this.anims.create({
+      key: 'waiting',
+      frames: this.anims.generateFrameNumbers('dots', { start: 0, end: 2 }),
+      frameRate: 2,
+      repeat: -1,
+    });
+
     // healthbar:
     this.healthbar();
 
@@ -109,6 +126,10 @@ export default class MainScene extends Phaser.Scene {
     this.gameOverSocket();
     this.hostSockets();
     this.itemSockets();
+    this.clientSocket.on('remove', () => {
+      this.dots.setVisible(false);
+      this.waiting.setVisible(false);
+    });
 
     // player things:
     this.createPlayerAnims();
@@ -119,6 +140,11 @@ export default class MainScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // console.log(this.anims);
+    if (this.dots) {
+      this.dots.anims.play('waiting', true);
+    }
+    // this.anims.play('waiting', true);
     if (this.player) {
       this.player.update(this.cursors);
       this.emitPlayerMovement();
@@ -261,6 +287,10 @@ export default class MainScene extends Phaser.Scene {
           id: heart1.id,
         });
       }, 15000);
+
+      this.dots.setVisible(false);
+      this.waiting.setVisible(false);
+      this.clientSocket.emit('removeWaitingText');
     });
   }
 
