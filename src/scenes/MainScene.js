@@ -448,10 +448,10 @@ export default class MainScene extends Phaser.Scene {
       target.health -= 10;
       this.otherPlayerHealth.displayWidth -= 13.8;
       this.otherPlayerHealth.x -= 6.9;
-      console.log(target.health);
-      if (target.health <= 0) {
-        this.emitGameOver();
-      }
+      console.log('1', target.health);
+      // if (target.health <= 0) {
+      //   this.emitGameOver();
+      // }
     }
   }
   collisionEnemyToPlayer(target, bullet) {
@@ -459,7 +459,7 @@ export default class MainScene extends Phaser.Scene {
       target.health -= 10;
       this.playerHealth.displayWidth -= 13.8;
       this.playerHealth.x -= 6.9;
-      console.log(target.health);
+      console.log('2', target.health);
       if (target.health <= 0) {
         this.emitGameOver();
       }

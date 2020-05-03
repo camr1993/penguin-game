@@ -13,6 +13,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       name: '',
     };
     this.name = 'Player';
+    this.health = 100;
   }
 
   update(cursors) {
