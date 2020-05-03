@@ -37,6 +37,9 @@ socketListener.on('connect', function (socket) {
   console.log('Server Side: A new client has connected!');
   console.log(socket.id);
   connectCounter++;
+  if (connectCounter >= 3) {
+    return;
+  }
   // create player in players obj and send info back to client
   players[socket.id] = {
     x: playerX,
