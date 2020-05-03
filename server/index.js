@@ -68,6 +68,9 @@ socketListener.on('connect', function (socket) {
   socket.on('pistolCreated', (pistolInfo) => {
     socket.broadcast.emit('pistolLocation', pistolInfo);
   });
+  socket.on('heartCreated', (heartInfo) => {
+    socket.broadcast.emit('heartLocation', heartInfo);
+  });
 
   // when a player disconnects, remove them from our players object
   socket.on('disconnect', () => {

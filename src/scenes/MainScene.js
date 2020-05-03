@@ -12,10 +12,13 @@ export default class MainScene extends Phaser.Scene {
     this.pistolId = 0;
     this.gameOver = false;
     this.setupSockets = this.setupSockets.bind(this);
+    this.hostSockets = this.hostSockets.bind(this);
+    this.itemSockets = this.itemSockets.bind(this);
     this.movementSockets = this.movementSockets.bind(this);
     this.emitPlayerMovement = this.emitPlayerMovement.bind(this);
     this.emitBullets = this.emitBullets.bind(this);
     this.pistolSockets = this.pistolSockets.bind(this);
+    this.heartSockets = this.heartSockets.bind(this);
     this.bulletSockets = this.bulletSockets.bind(this);
     this.gameOverSocket = this.gameOverSocket.bind(this);
     this.addPlayer = this.addPlayer.bind(this);
@@ -90,7 +93,7 @@ export default class MainScene extends Phaser.Scene {
 
     // heart:
     this.hearts = this.physics.add.group();
-    this.hearts.create(533.5, 10, 'heart').setScale(0.7);
+    // this.hearts.create(533.5, 10, 'heart').setScale(0.7);
 
     // healthbar:
     this.healthbar();
@@ -102,56 +105,11 @@ export default class MainScene extends Phaser.Scene {
     this.setupSockets();
     this.movementSockets();
     this.pistolSockets();
+    this.heartSockets();
     this.bulletSockets();
     this.gameOverSocket();
-    this.clientSocket.on('host', () => {
-      console.log('I am the host');
-    });
-    this.clientSocket.on('player2', () => {
-      console.log('I am player2');
-      this.clientSocket.emit('player2-ready');
-    });
-    this.clientSocket.on('startGame', () => {
-      setTimeout(() => {
-        let x = Math.floor(Math.random() * 533) + 1;
-        const pistol = this.pistols.create(x, 20, 'pistol');
-        this.pistolId++;
-        pistol.id = this.pistolId;
-        this.clientSocket.emit('pistolCreated', {
-          x: x,
-          y: 20,
-          id: pistol.id,
-        });
-
-        const pistol2 = this.pistols.create(1067 - x, 100, 'pistol');
-        this.pistolId++;
-        pistol2.id = this.pistolId;
-        this.clientSocket.emit('pistolCreated', {
-          x: 1067 - x,
-          y: 100,
-          id: pistol2.id,
-        });
-      }, 7000);
-
-      // let x = Math.floor(Math.random() * 533) + 1;
-      // const pistol = this.pistols.create(x, 20, 'pistol');
-      // this.pistolId++;
-      // pistol.id = this.pistolId;
-      // this.clientSocket.emit('pistolCreated', {
-      //   x: x,
-      //   y: 20,
-      //   id: pistol.id,
-      // });
-
-      // const pistol2 = this.pistols.create(1067 - x, 100, 'pistol');
-      // this.pistolId++;
-      // pistol2.id = this.pistolId;
-      // this.clientSocket.emit('pistolCreated', {
-      //   x: 1067 - x,
-      //   y: 100,
-      //   id: pistol2.id,
-      // });
-    });
+    this.hostSockets();
+    this.itemSockets();
 
     // player things:
     this.createPlayerAnims();
@@ -173,9 +131,6 @@ export default class MainScene extends Phaser.Scene {
         pistol.update(time, this.cursors, this.player, this.fireWeapon);
       });
     }
-    // if (this.bullets.getChildren().length) {
-    //   this.emitBullets();
-    // }
   }
 
   collisions() {
@@ -266,6 +221,48 @@ export default class MainScene extends Phaser.Scene {
       });
     });
   }
+  hostSockets() {
+    this.clientSocket.on('host', () => {
+      console.log('I am the host');
+    });
+    this.clientSocket.on('player2', () => {
+      console.log('I am player2');
+      this.clientSocket.emit('player2-ready');
+    });
+  }
+  itemSockets() {
+    this.clientSocket.on('startGame', () => {
+      setTimeout(() => {
+        let x = Math.floor(Math.random() * 400) + 1;
+        const pistol = this.pistols.create(x, 20, 'pistol');
+        this.pistolId++;
+        pistol.id = this.pistolId;
+        this.clientSocket.emit('pistolCreated', {
+          x: x,
+          y: 20,
+          id: pistol.id,
+        });
+
+        const pistol2 = this.pistols.create(1067 - x, 100, 'pistol');
+        this.pistolId++;
+        pistol2.id = this.pistolId;
+        this.clientSocket.emit('pistolCreated', {
+          x: 1067 - x,
+          y: 100,
+          id: pistol2.id,
+        });
+
+        const heart1 = this.hearts.create(533.5, 10, 'heart').setScale(0.7);
+        heart1.id = 1;
+        this.clientSocket.emit('heartCreated', {
+          x: 533.5,
+          y: 10,
+          id: heart1.id,
+        });
+      }, 7000);
+    });
+  }
+
   movementSockets() {
     this.clientSocket.on('playerMoved', (playerInfo) => {
       this.otherPlayers.getChildren().forEach((otherPlayer) => {
@@ -289,6 +286,14 @@ export default class MainScene extends Phaser.Scene {
           pistol.disableBody(true, true);
         }
       });
+    });
+  }
+  heartSockets() {
+    this.clientSocket.on('heartLocation', (heartInfo) => {
+      const heart = this.hearts
+        .create(heartInfo.x, heartInfo.y, 'heart')
+        .setScale(0.7);
+      heart.id = heartInfo.id;
     });
   }
   bulletSockets() {
@@ -354,17 +359,6 @@ export default class MainScene extends Phaser.Scene {
       facingLeft: bullet.facingLeft,
       enemyBullet: true,
     });
-
-    // this.bullets.getChildren().forEach((bullet) => {
-    //   if (bullet.emitted === false) {
-    //     this.clientSocket.emit('bulletFired', {
-    //       x: bullet.x,
-    //       y: bullet.y,
-    //       facingLeft: bullet.facingLeft,
-    //     });
-    //     bullet.emitted = true;
-    //   }
-    // });
   }
   emitGameOver() {
     this.clientSocket.emit('gameOver');
@@ -383,11 +377,11 @@ export default class MainScene extends Phaser.Scene {
       'penguin'
     );
     if (playerInfo.team === 'blue') {
-      otherPlayer.setTint(0x0000ff); // 0x0000ff
-      otherPlayer.clearTint();
+      otherPlayer.setTint(0x00ffff); // 0x0000ff
+      // otherPlayer.clearTint();
     } else {
-      otherPlayer.setTint(0x0ff0000); // 0xff0000
-      otherPlayer.clearTint();
+      otherPlayer.setTint(0x00ffff); // 0xff0000
+      // otherPlayer.clearTint();
     }
     otherPlayer.setScale(0.75);
     otherPlayer.setCollideWorldBounds(true);
@@ -454,6 +448,7 @@ export default class MainScene extends Phaser.Scene {
       target.health -= 10;
       this.otherPlayerHealth.displayWidth -= 13.8;
       this.otherPlayerHealth.x -= 6.9;
+      console.log(target.health);
       if (target.health <= 0) {
         this.emitGameOver();
       }
@@ -464,6 +459,7 @@ export default class MainScene extends Phaser.Scene {
       target.health -= 10;
       this.playerHealth.displayWidth -= 13.8;
       this.playerHealth.x -= 6.9;
+      console.log(target.health);
       if (target.health <= 0) {
         this.emitGameOver();
       }
@@ -476,10 +472,11 @@ export default class MainScene extends Phaser.Scene {
     target.health = 100;
     if (target.name === 'Player') {
       this.playerHealth.displayWidth = 138;
+      this.playerHealth.x = 100;
     } else {
       this.otherPlayerHealth.displayWidth = 138;
+      this.otherPlayerHealth.x = 967;
     }
-    console.log(target.health);
   }
 
   healthbar() {
