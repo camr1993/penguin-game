@@ -250,7 +250,9 @@ export default class MainScene extends Phaser.Scene {
           y: 100,
           id: pistol2.id,
         });
+      }, 7000);
 
+      setTimeout(() => {
         const heart1 = this.hearts.create(533.5, 10, 'heart').setScale(0.7);
         heart1.id = 1;
         this.clientSocket.emit('heartCreated', {
@@ -258,7 +260,7 @@ export default class MainScene extends Phaser.Scene {
           y: 10,
           id: heart1.id,
         });
-      }, 7000);
+      }, 15000);
     });
   }
 
