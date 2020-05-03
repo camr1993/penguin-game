@@ -13,7 +13,11 @@ export default class Pistol extends Phaser.Physics.Arcade.Sprite {
 
   update(time, cursors, player, fireWeaponFunc) {
     if (player.currentWeapon.name === 'pistol') {
-      if (cursors.space.isDown && time > this.lastFired) {
+      if (
+        this.id === player.currentWeapon.id &&
+        cursors.space.isDown &&
+        time > this.lastFired
+      ) {
         fireWeaponFunc();
         this.lastFired = time + this.fireDelay;
       }

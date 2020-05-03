@@ -93,7 +93,6 @@ export default class MainScene extends Phaser.Scene {
 
     // heart:
     this.hearts = this.physics.add.group();
-    // this.hearts.create(533.5, 10, 'heart').setScale(0.7);
 
     // healthbar:
     this.healthbar();
@@ -391,6 +390,7 @@ export default class MainScene extends Phaser.Scene {
   pickupWeapon(player, weapon) {
     player.currentWeapon.name = `${weapon.texture.key}`;
     player.currentWeapon.holding = true;
+    player.currentWeapon.id = weapon.id;
     weapon.disableBody(true, true);
 
     this.clientSocket.emit('pistolPickedUp', weapon.id);
