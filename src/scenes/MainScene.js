@@ -111,6 +111,18 @@ export default class MainScene extends Phaser.Scene {
       repeat: -1,
     });
 
+    // Too many players text:
+    this.tooMany = this.add.text(
+      340,
+      50,
+      'Too Many Players...Try again later!',
+      {
+        fontSize: '18px',
+        fill: '#000',
+      }
+    );
+    this.tooMany.setVisible(false);
+
     // healthbar:
     this.healthbar();
 
@@ -253,6 +265,12 @@ export default class MainScene extends Phaser.Scene {
     this.clientSocket.on('player2', () => {
       console.log('I am player2');
       this.clientSocket.emit('player2-ready');
+    });
+    this.clientSocket.on('tooManyPlayers', () => {
+      this.dots.setVisible(false);
+      this.waiting.setVisible(false);
+      this.tooMany.setVisible(true);
+      this.hearts.setVisible(false);
     });
   }
   itemSockets() {

@@ -37,9 +37,22 @@ socketListener.on('connect', function (socket) {
   console.log('Server Side: A new client has connected!');
   console.log(socket.id);
   connectCounter++;
+  console.log('connect counter:', connectCounter);
   if (connectCounter >= 3) {
+    connectCounter--;
+    socket.emit('tooManyPlayers');
     return;
   }
+  // disconnect player after 30 min
+  setTimeout(() => {
+    console.log('Server Side: We lost a client! Client down!');
+    socket.disconnect(0);
+    delete players[socket.id];
+    connectCounter--;
+    // emit a message to all players to remove this player
+    socketListener.emit('disconnect', socket.id);
+  }, 1800000);
+
   // create player in players obj and send info back to client
   players[socket.id] = {
     x: playerX,
