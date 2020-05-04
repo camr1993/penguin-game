@@ -115,7 +115,7 @@ export default class MainScene extends Phaser.Scene {
     this.tooMany = this.add.text(
       340,
       50,
-      'Too Many Players...Try again later!',
+      'Too Many Players...Try Again Later!',
       {
         fontSize: '18px',
         fill: '#000',
