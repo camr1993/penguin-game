@@ -5,11 +5,11 @@
 - Penguin Game is a 2 player online fighter game, built using the Phaser 3 game engine (https://phaser.io/phaser3) and Socket.IO (https://socket.io/docs/)
 - Link to Game: https://penguin-game-007.herokuapp.com/
 
-## Setup
+## Setup for Local Testing
 
 - `npm install`
 - `npm run start-dev`
-- Open 2 browsers (or tabs) of localhost:3000
+- Open 2 separate browsers of localhost:3000 (put them side by side for )
 
 ## Getting Started
 

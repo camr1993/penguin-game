@@ -1,57 +1,57 @@
-const express = require('express');
-const app = express();
-const path = require('path');
-const createSocketListener = require('socket.io');
+const express = require('express')
+const app = express()
+const path = require('path')
+const createSocketListener = require('socket.io')
 
-let port = process.env.PORT;
+let port = process.env.PORT
 if (!port) {
-  port = 3000;
+  port = 3000
 }
 
 // app.listen() returns an http.Server object
 const server = app.listen(port, () => {
-  console.log(port);
-  console.log(`Listening on http://localhost:${server.address().port}`);
-});
+  console.log(port)
+  console.log(`Listening on http://localhost:${server.address().port}`)
+})
 
-const socketListener = createSocketListener(server);
+const socketListener = createSocketListener(server)
 
 const randCoord = () => {
-  return Math.floor(Math.random() * 700) + 50;
-};
+  return Math.floor(Math.random() * 700) + 50
+}
 
-let id = 0;
+let id = 0
 const newId = () => {
-  id++;
-  return id;
-};
+  id++
+  return id
+}
 
-let playerX = 20;
-let connectCounter = 0;
-const players = {};
+let playerX = 20
+let connectCounter = 0
+const players = {}
 
 // .on listens for an emit (action), .emit sends an action
 socketListener.on('connect', function (socket) {
   /* This function receives the newly connected socket.
      This function will be called for EACH browser that connects to our server. */
-  console.log('Server Side: A new client has connected!');
-  console.log(socket.id);
-  connectCounter++;
-  console.log('connect counter:', connectCounter);
+  console.log('Server Side: A new client has connected!')
+  console.log(socket.id)
+  connectCounter++
+  console.log('connect counter:', connectCounter)
   if (connectCounter >= 3) {
-    connectCounter--;
-    socket.emit('tooManyPlayers');
-    return;
+    connectCounter--
+    socket.emit('tooManyPlayers')
+    return
   }
   // disconnect player after 30 min
   setTimeout(() => {
-    console.log('Server Side: We lost a client! Client down!');
-    socket.disconnect(0);
-    delete players[socket.id];
-    connectCounter--;
+    console.log('Server Side: We lost a client! Client down!')
+    socket.disconnect(0)
+    delete players[socket.id]
+    connectCounter--
     // emit a message to all players to remove this player
-    socketListener.emit('disconnect', socket.id);
-  }, 1800000);
+    socketListener.emit('disconnect', socket.id)
+  }, 1800000)
 
   // create player in players obj and send info back to client
   players[socket.id] = {
@@ -59,78 +59,77 @@ socketListener.on('connect', function (socket) {
     y: 450,
     playerId: socket.id,
     team: Math.floor(Math.random() * 2) === 0 ? 'red' : 'blue',
-  };
+  }
   if (playerX === 20) {
-    playerX = 1047;
+    playerX = 1047
   } else {
-    playerX = 20;
+    playerX = 20
   }
 
   // send the players object to the new player
-  socket.emit('currentPlayers', players);
+  socket.emit('currentPlayers', players)
 
   // update all other players of the new player
-  socket.broadcast.emit('newPlayer', players[socket.id]);
+  socket.broadcast.emit('newPlayer', players[socket.id])
 
   if (connectCounter === 1) {
-    socket.emit('host');
+    socket.emit('host')
   }
   if (connectCounter === 2) {
-    socket.emit('player2');
+    socket.emit('player2')
   }
   socket.on('player2-ready', () => {
-    socket.broadcast.emit('startGame');
-  });
+    socket.broadcast.emit('startGame')
+  })
   socket.on('removeWaitingText', () => {
-    socket.broadcast.emit('remove');
-  });
+    socket.broadcast.emit('remove')
+  })
   socket.on('pistolCreated', (pistolInfo) => {
-    socket.broadcast.emit('pistolLocation', pistolInfo);
-  });
+    socket.broadcast.emit('pistolLocation', pistolInfo)
+  })
   socket.on('heartCreated', (heartInfo) => {
-    socket.broadcast.emit('heartLocation', heartInfo);
-  });
+    socket.broadcast.emit('heartLocation', heartInfo)
+  })
 
   // when a player disconnects, remove them from our players object
   socket.on('disconnect', () => {
-    console.log('Server Side: We lost a client! Client down!');
+    console.log('Server Side: We lost a client! Client down!')
     // remove from players object
-    delete players[socket.id];
-    connectCounter--;
+    delete players[socket.id]
+    connectCounter--
     // emit a message to all players to remove this player
-    socketListener.emit('disconnect', socket.id);
-  });
+    socketListener.emit('disconnect', socket.id)
+  })
 
   socket.on('playerMovement', (movementData) => {
-    players[socket.id].x = movementData.x;
-    players[socket.id].y = movementData.y;
-    players[socket.id].facingLeft = movementData.facingLeft;
-    players[socket.id].currentWeapon = movementData.currentWeapon;
-    players[socket.id].run = movementData.run;
-    socket.broadcast.emit('playerMoved', players[socket.id]);
-  });
+    players[socket.id].x = movementData.x
+    players[socket.id].y = movementData.y
+    players[socket.id].facingLeft = movementData.facingLeft
+    players[socket.id].currentWeapon = movementData.currentWeapon
+    players[socket.id].run = movementData.run
+    socket.broadcast.emit('playerMoved', players[socket.id])
+  })
   socket.on('pistolPickedUp', (pistolId) => {
-    socket.broadcast.emit('pistolDestroy', pistolId);
-  });
+    socket.broadcast.emit('pistolDestroy', pistolId)
+  })
   socket.on('bulletFired', (bulletData) => {
-    socket.broadcast.emit('incomingBullet', bulletData);
-  });
+    socket.broadcast.emit('incomingBullet', bulletData)
+  })
   socket.on('gameOver', () => {
-    socketListener.emit('gameHasEnded');
-  });
+    socketListener.emit('gameHasEnded')
+  })
   socket.on('disconnectMe', () => {
-    socket.disconnect(0);
-  });
-});
+    socket.disconnect(0)
+  })
+})
 
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../public')))
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'index.html'));
-});
+  res.sendFile(path.join(__dirname, '../public', 'index.html'))
+})
 
 socketListener.on('SIGINT', function () {
-  console.log('\nGracefully shutting down from SIGINT (Ctrl-C)');
-  // some other closing procedures go here
-  socketListener.exit(1);
-});
+  console.log('\nGracefully shutting down from SIGINT (Ctrl-C)')
+  socketListener.exit(1)
+})
