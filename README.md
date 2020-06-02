@@ -9,7 +9,7 @@
 
 - `npm install`
 - `npm run start-dev`
-- Open 2 separate browsers of localhost:3000 (put them side by side for )
+- Open 2 separate browsers of localhost:3000 (put them side by side for best results!)
 
 ## Getting Started
 
